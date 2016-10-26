@@ -1,5 +1,6 @@
 package agents;
+
 //só um exemplo
-public class AgressiveAgent implements Agent {
+public class AgressiveAgent extends Agent {
 
 }
