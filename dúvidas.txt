@@ -1,0 +1,11 @@
+Como fazer a comunicação?
+
+
+Faz sentido uma empresa ter registo sobre as vendas ? 
+	/**
+	 * The record of who purchased the Stocks take the ones already invalid?
+	 * (como já não pertecem à empresa??) think so, we have date of purcahse
+	 * makes sense?
+	 */
+	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
+	

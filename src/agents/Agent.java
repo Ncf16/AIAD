@@ -4,6 +4,13 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+/**
+ * Jadex probably has an extend I should use but for now thread stays just to
+ * give the idea that it is about independet programs
+ * 
+ * @author Filipe
+ *
+ */
 public class Agent extends Thread {
 
 	/**

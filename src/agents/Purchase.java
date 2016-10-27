@@ -3,6 +3,7 @@ package agents;
 import java.util.Comparator;
 import java.util.Date;
 
+import company.Company;
 import company.Stock;
 
 public class Purchase {
@@ -11,6 +12,7 @@ public class Purchase {
 	private double sotckSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
+	private Company company;
 	/**
 	 * Pretty much if a purchase is still valid, we need this to keep track of
 	 * everything happening (The question is, are agents will be independent

@@ -9,14 +9,40 @@ import java.util.Random;
  *
  */
 public class Stock {
+	enum StockType {
+		NORMAL, VOLATILE, VERY_VOLATILE
+	}
+
 	private static final int RANDOM_INT_LIMIT = 3;
 	private static double stockPrice = 0.0;
 	private double priceFluctuation = 0.0;
 	private Random randomNumber = new Random();
 
-	public Stock(double stockPrice, double priceFluctuation) {
+	public Stock(double stockPrice) {
 		Stock.stockPrice = stockPrice;
-		this.priceFluctuation = priceFluctuation;
+		setFluctuationWithType(StockType.NORMAL);
+	}
+
+	public Stock(double stockPrice, StockType type) {
+		Stock.stockPrice = stockPrice;
+		setFluctuationWithType(type);
+	}
+
+	/**
+	 * Changes the % of price fluctuation according to the stock type
+	 * 
+	 * @param type
+	 */
+	public void setFluctuationWithType(StockType type) {
+		if (type == StockType.NORMAL) {
+			priceFluctuation = 2.5;
+		} else if (type == StockType.VOLATILE) {
+			priceFluctuation = 10.0;
+
+		} else if (type == StockType.VERY_VOLATILE) {
+			priceFluctuation = 25.0;
+
+		}
 	}
 
 	/**
