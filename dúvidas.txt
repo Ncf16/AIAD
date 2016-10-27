@@ -8,4 +8,4 @@ Faz sentido uma empresa ter registo sobre as vendas ?
 	 * makes sense?
 	 */
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
-	
+	T
