@@ -11,11 +11,22 @@ public class Purchase {
 	private double sotckSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
+	/**
+	 * Pretty much if a purchase is still valid, we need this to keep track of
+	 * everything happening (The question is, are agents will be independent
+	 * threads so, how to keep track of everything, an Agent notifies the
+	 * company it made the sale?
+	 */
 	private boolean sold = false;
 
+	/**
+	 * Comparator Between purchases
+	 */
 	public static Comparator<Purchase> comparator = new Comparator<Purchase>() {
 		@Override
 		public int compare(Purchase c1, Purchase c2) {
+			if (c1 == null || c2 == null)
+				return -1;
 			return (int) (c1.getDateOfPurchase().compareTo(c2.getDateOfPurchase()));
 		}
 	};
@@ -99,6 +110,14 @@ public class Purchase {
 	 */
 	public void setDateOfPurchase(Date dateOfPurchase) {
 		this.dateOfPurchase = dateOfPurchase;
+	}
+
+	public boolean isSold() {
+		return sold;
+	}
+
+	public void setSold(boolean sold) {
+		this.sold = sold;
 	}
 
 }

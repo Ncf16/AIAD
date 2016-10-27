@@ -4,9 +4,10 @@ import java.util.PriorityQueue;
 
 import agents.Purchase;
 
-public class Company {
+public class Company extends Thread {
 	private Stock companyStock;
-	private String name;
+	private String companyName;
+	private int numberOfStocks;
 	/**
 	 * The record of who purchased the Stocks take the ones already invalid?
 	 * (como já não pertecem à empresa??) think so, we have date of purcahse
@@ -24,12 +25,12 @@ public class Company {
 		this.companyStock = companyStock;
 	}
 
-	public String getName() {
-		return name;
+	public String getCompanyName() {
+		return companyName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setCompanyName(String name) {
+		this.companyName = name;
 	}
 
 	public PriorityQueue<Purchase> getStocksSold() {
@@ -40,4 +41,11 @@ public class Company {
 		this.stocksSold = stocksSold;
 	}
 
+	public int getNumberOfStocks() {
+		return numberOfStocks;
+	}
+
+	public void setNumberOfStocks(int numberOfStocks) {
+		this.numberOfStocks = numberOfStocks;
+	}
 }

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-public class Agent {
+public class Agent extends Thread {
 
 	/**
 	 * Record of Stocks bought
@@ -21,26 +21,55 @@ public class Agent {
 
 	private Set<String> trustedCompanies = new HashSet<String>();
 
+	/**
+	 * 
+	 * @return a priority queue of stocks that have been sold by the agent
+	 *         ordered by Date
+	 */
 	public PriorityQueue<Purchase> getStocksSold() {
 		return stocksSold;
 	}
 
+	/**
+	 * sets the stocks sold
+	 * 
+	 * @param stocksSold
+	 */
 	public void setStocksSold(PriorityQueue<Purchase> stocksSold) {
 		this.stocksSold = stocksSold;
 	}
 
+	/**
+	 * 
+	 * @return a priority queue of stocks that have been bought by the agent
+	 *         ordered by Date
+	 */
 	public PriorityQueue<Purchase> getStocksBought() {
 		return stocksBought;
 	}
 
+	/**
+	 * sets the stocks bought by the Agent
+	 * 
+	 * @param stocksBought
+	 */
 	public void setStocksBought(PriorityQueue<Purchase> stocksBought) {
 		this.stocksBought = stocksBought;
 	}
 
+	/**
+	 * 
+	 * @return The companies the agent trusts
+	 */
 	public Set<String> getTrustedCompanies() {
 		return trustedCompanies;
 	}
 
+	/**
+	 * sets the trutesd companies
+	 * 
+	 * @param trustedCompanies
+	 */
 	public void setTrustedCompanies(Set<String> trustedCompanies) {
 		this.trustedCompanies = trustedCompanies;
 	}
