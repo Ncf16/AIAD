@@ -11,6 +11,7 @@ public class Company extends Thread {
 	/**
 	 * The record of who purchased the Stocks take the ones already invalid?
 	 * (como já não pertecem à empresa??) think so, we have date of purcahse
+	 * makes sense?
 	 */
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
