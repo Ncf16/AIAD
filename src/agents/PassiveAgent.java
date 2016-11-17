@@ -1,5 +1,7 @@
 package agents;
 
-public class PassiveAgent extends Agent {
+import jadex.micro.annotation.Agent;
+
+public class PassiveAgent  extends StandardAgent {
 
 }

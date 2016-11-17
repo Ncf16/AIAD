@@ -8,7 +8,7 @@ import company.Stock;
 
 public class Purchase {
 	private Stock stockBought;
-	private Agent buyer;
+	private StandardAgent buyer;
 	private double sotckSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
@@ -29,7 +29,7 @@ public class Purchase {
 		public int compare(Purchase c1, Purchase c2) {
 			if (c1 == null || c2 == null)
 				return -1;
-			return (int) (c1.getDateOfPurchase().compareTo(c2.getDateOfPurchase()));
+			return (c1.getDateOfPurchase().compareTo(c2.getDateOfPurchase()));
 		}
 	};
 
@@ -54,7 +54,7 @@ public class Purchase {
 	 * 
 	 * @return the buyer of the purchase
 	 */
-	public Agent getBuyer() {
+	public StandardAgent getBuyer() {
 		return buyer;
 	}
 
@@ -62,7 +62,7 @@ public class Purchase {
 	 * Changes the buyer who made the purchase
 	 * 
 	 */
-	public void setBuyer(Agent buyer) {
+	public void setBuyer(StandardAgent buyer) {
 		this.buyer = buyer;
 	}
 
