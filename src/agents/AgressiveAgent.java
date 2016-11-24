@@ -1,5 +1,5 @@
 package agents;
 
-public class AgressiveAgent extends StandardAgent{
+public class AgressiveAgent extends StandardAgent {
 
 }
