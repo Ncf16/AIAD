@@ -9,6 +9,7 @@ import company.Stock;
 public class Purchase {
 	private Stock stockBought;
 	private StandardAgent buyer;
+	private double sotckPurchasePrice;
 	private double sotckSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
@@ -33,6 +34,23 @@ public class Purchase {
 		}
 	};
 
+	public boolean sellStock(StandardAgent seller) {
+
+		// TODO check if seller is buyer
+		if (!seller.equals(buyer))
+			return false;
+
+		sotckSalePrice = stockBought.getStockPrice();
+		return (sold = true);
+
+	}
+
+	public double getSaleProfit() {
+		return sotckSalePrice - sotckPurchasePrice;
+	}
+
+	
+	//-----------------------------------------------
 	/**
 	 * Returns the Stock bought
 	 * 
