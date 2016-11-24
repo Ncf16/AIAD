@@ -3,19 +3,18 @@ package company;
 import java.util.PriorityQueue;
 
 import agents.Purchase;
+import jadex.micro.annotation.Agent;
 
-public class Company extends Thread {
+@Agent
+public class Company {
 	private Stock companyStock;
 	private String companyName;
 	private int numberOfStocks;
-	/**
-	 * The record of who purchased the Stocks take the ones already invalid?
-	 * (como já não pertecem à empresa??) think so, we have date of purcahse
-	 * makes sense?
-	 */
+
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
-	public Company() {
+	public Company(String name) {
+		this.companyName = name;
 	}
 
 	public Stock getCompanyStock() {

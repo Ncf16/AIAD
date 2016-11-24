@@ -2,29 +2,25 @@ package company;
 
 import java.util.Random;
 
-/**
- * 
- * Acho que não compensa ter as 3 classes filhas 1 Enum seria sufeciente IMO but
- * let us see what you guys think
- *
- */
 public class Stock {
 	enum StockType {
 		NORMAL, VOLATILE, VERY_VOLATILE
 	}
 
-	private static final int RANDOM_INT_LIMIT = 3;
-	private static double stockPrice = 0.0;
+	private static final int RANDOM_INT_LIMIT = 2;
+	private double stockPrice = 0.0;
 	private double priceFluctuation = 0.0;
+	private StockType type;
 	private Random randomNumber = new Random();
 
 	public Stock(double stockPrice) {
-		Stock.stockPrice = stockPrice;
+		this.stockPrice = stockPrice;
 		setFluctuationWithType(StockType.NORMAL);
 	}
 
 	public Stock(double stockPrice, StockType type) {
-		Stock.stockPrice = stockPrice;
+		this.stockPrice = stockPrice;
+		this.type = type;
 		setFluctuationWithType(type);
 	}
 
@@ -53,12 +49,12 @@ public class Stock {
 		return randomNumber.nextInt(RANDOM_INT_LIMIT) - 1;
 	}
 
-	public static double getStockPrice() {
+	public double getStockPrice() {
 		return stockPrice;
 	}
 
-	public static void setStockPrice(double stockPrice) {
-		Stock.stockPrice = stockPrice;
+	public void setStockPrice(double stockPrice) {
+		this.stockPrice = stockPrice;
 	}
 
 	public double getPriceFluctuation() {
@@ -70,8 +66,15 @@ public class Stock {
 	}
 
 	public void changePrice() {
-		setStockPrice(Stock.getStockPrice()
-				+ Stock.getStockPrice() * (getPriceFluctuation() / 100.0 * isItPositiveFluctuation()));
+		setStockPrice(getStockPrice() + getStockPrice()
+				* (randomNumber.nextDouble() * getPriceFluctuation() + 1 / 100.0 * isItPositiveFluctuation()));
 	}
 
+	public StockType getType() {
+		return type;
+	}
+
+	public void setType(StockType type) {
+		this.type = type;
+	}
 }
