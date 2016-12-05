@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <p0:properties xmlns:p0="http://www.activecomponents.org/jadex-conf" __ID="0">
-	<p0:properties __ID="1" type="controlcenter">
-		<p0:property __ID="2" type="perspective">Starter</p0:property>
-		<p0:property __ID="3" type="consoleenabled">false</p0:property>
-		<p0:property __ID="4" type="consoleheights"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+	<p0:properties __ID="1" type="vis">
+		<p0:property __ID="2" name="jadex.tools.starter.StarterPlugin" type="Starter">true</p0:property>
+		<p0:property __ID="3" name="jadex.tools.chat.ChatPlugin" type="Chat">true</p0:property>
+		<p0:property __ID="4" name="jadex.tools.testcenter.TestCenterPlugin" type="Test Center">true</p0:property>
+		<p0:property __ID="5" name="jadex.tools.simcenter.SimulationServicePlugin" type="ISimulationService">true</p0:property>
+		<p0:property __ID="6" name="jadex.tools.debugger.DebuggerPlugin" type="Debugger">true</p0:property>
+		<p0:property __ID="7" name="jadex.tools.awareness.AwarenessServicePlugin" type="IAwarenessManagementService">true</p0:property>
+		<p0:property __ID="8" name="jadex.base.gui.componentviewer.ComponentViewerPlugin" type="Component Viewer">true</p0:property>
+		<p0:property __ID="9" name="jadex.tools.security.SecurityServicePlugin" type="ISecurityService">true</p0:property>
+	</p0:properties>
+	<p0:properties __ID="10" type="controlcenter">
+		<p0:property __ID="11" type="perspective">Starter</p0:property>
+		<p0:property __ID="12" type="consoleenabled">false</p0:property>
+		<p0:property __ID="13" type="consoleheights"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
 <p0:HashMap xmlns:p0="typeinfo:java.util" __ID="0">
 	<entries>
 		<entry __ID="1">
@@ -18,17 +28,23 @@
 </p0:HashMap>
 ]]></p0:property>
 	</p0:properties>
-	<p0:properties __ID="6" type="Starter">
-		<p0:property __ID="7" type="leftsplit_location">0.6781609195402298</p0:property>
-		<p0:property __ID="8" type="mainsplit_location">0.37051282051282053</p0:property>
+	<p0:properties __ID="14" type="Starter">
+		<p0:property __ID="15" type="leftsplit_location">0.6764705882352942</p0:property>
+		<p0:property __ID="16" type="mainsplit_location">0.3704663212435233</p0:property>
 	</p0:properties>
-	<p0:properties __ID="10" type="window">
-		<p0:property __ID="11" type="width">800</p0:property>
-		<p0:property __ID="12" type="height">650</p0:property>
-		<p0:property __ID="13" type="x">240</p0:property>
-		<p0:property __ID="14" type="y">187</p0:property>
-		<p0:property __ID="15" type="extendedState">0</p0:property>
-		<p0:property __ID="16" type="jccexit">ask</p0:property>
-		<p0:property __ID="17" type="saveonexit">true</p0:property>
+	<p0:properties __ID="17" type="Chat">
+		<p0:properties __ID="18" type="panelproperties">
+			<p0:property __ID="19" type="autorefresh">true</p0:property>
+			<p0:property __ID="20" type="sound">true</p0:property>
+		</p0:properties>
+	</p0:properties>
+	<p0:properties __ID="21" type="window">
+		<p0:property __ID="22" type="width">800</p0:property>
+		<p0:property __ID="23" type="height">650</p0:property>
+		<p0:property __ID="24" type="x">687</p0:property>
+		<p0:property __ID="25" type="y">230</p0:property>
+		<p0:property __ID="26" type="extendedState">0</p0:property>
+		<p0:property __ID="27" type="jccexit">ask</p0:property>
+		<p0:property __ID="28" type="saveonexit">true</p0:property>
 	</p0:properties>
 </p0:properties>

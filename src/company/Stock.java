@@ -6,6 +6,7 @@ public class Stock {
 	enum StockType {
 		NORMAL, VOLATILE, VERY_VOLATILE
 	}
+	
 
 	private static final int RANDOM_INT_LIMIT = 2;
 	private double stockPrice = 0.0;
@@ -46,7 +47,11 @@ public class Stock {
 	 * @return 1 if positive or -1 if the fluctuation will be negative
 	 */
 	public int isItPositiveFluctuation() {
-		return randomNumber.nextInt(RANDOM_INT_LIMIT) - 1;
+		int random = randomNumber.nextInt(RANDOM_INT_LIMIT); // 0 or 1
+		if(random == 0)
+			return -1;
+		else
+			return 1;
 	}
 
 	public double getStockPrice() {
@@ -66,8 +71,8 @@ public class Stock {
 	}
 
 	public void changePrice() {
-		setStockPrice(getStockPrice() + getStockPrice()
-				* (randomNumber.nextDouble() * getPriceFluctuation() + 1 / 100.0 * isItPositiveFluctuation()));
+		double variation =  (randomNumber.nextDouble() * getPriceFluctuation() + 1 / 100.0 * isItPositiveFluctuation());
+		stockPrice = stockPrice + stockPrice*variation;
 	}
 
 	public StockType getType() {

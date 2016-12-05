@@ -6,14 +6,14 @@ import agents.Purchase;
 import jadex.micro.annotation.Agent;
 
 @Agent
-public class Company {
+public class CompanyAgent {
 	private Stock companyStock;
 	private String companyName;
 	private int numberOfStocks;
 
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
-	public Company(String name) {
+	public CompanyAgent(String name) {
 		this.companyName = name;
 	}
 
