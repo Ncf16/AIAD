@@ -3,10 +3,9 @@ package company;
 import java.util.Random;
 
 public class Stock {
-	enum StockType {
+	public enum StockType {
 		NORMAL, VOLATILE, VERY_VOLATILE
 	}
-	
 
 	private static final int RANDOM_INT_LIMIT = 2;
 	private double stockPrice = 0.0;
@@ -17,6 +16,9 @@ public class Stock {
 	public Stock(double stockPrice) {
 		this.stockPrice = stockPrice;
 		setFluctuationWithType(StockType.NORMAL);
+	}
+
+	public Stock() {
 	}
 
 	public Stock(double stockPrice, StockType type) {
@@ -31,14 +33,16 @@ public class Stock {
 	 * @param type
 	 */
 	public void setFluctuationWithType(StockType type) {
+
 		if (type == StockType.NORMAL) {
 			priceFluctuation = 2.5;
+			this.type = StockType.NORMAL;
 		} else if (type == StockType.VOLATILE) {
 			priceFluctuation = 10.0;
-
+			this.type = StockType.VOLATILE;
 		} else if (type == StockType.VERY_VOLATILE) {
 			priceFluctuation = 25.0;
-
+			this.type = StockType.VERY_VOLATILE;
 		}
 	}
 
@@ -47,8 +51,7 @@ public class Stock {
 	 * @return 1 if positive or -1 if the fluctuation will be negative
 	 */
 	public int isItPositiveFluctuation() {
-		int random = randomNumber.nextInt(RANDOM_INT_LIMIT); // 0 or 1
-		if(random == 0)
+		if (randomNumber.nextInt(RANDOM_INT_LIMIT) == 0)
 			return -1;
 		else
 			return 1;
@@ -71,8 +74,8 @@ public class Stock {
 	}
 
 	public void changePrice() {
-		double variation =  (randomNumber.nextDouble() * getPriceFluctuation() + 1 / 100.0 * isItPositiveFluctuation());
-		stockPrice = stockPrice + stockPrice*variation;
+		double variation = (randomNumber.nextDouble() * getPriceFluctuation() * isItPositiveFluctuation() / 100.0) + 1;
+		stockPrice = stockPrice * variation;
 	}
 
 	public StockType getType() {

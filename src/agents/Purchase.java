@@ -10,7 +10,7 @@ public class Purchase {
 	private Stock stockBought;
 	private StandardBDI buyer;
 	private double sotckPurchasePrice;
-	private double sotckSalePrice;
+	private double stockSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
 	private CompanyBDI company;
@@ -40,13 +40,13 @@ public class Purchase {
 		if (!seller.equals(buyer))
 			return false;
 
-		sotckSalePrice = stockBought.getStockPrice();
+		stockSalePrice = stockBought.getStockPrice();
 		return (sold = true);
 
 	}
 
 	public double getSaleProfit() {
-		return sotckSalePrice - sotckPurchasePrice;
+		return stockSalePrice - sotckPurchasePrice;
 	}
 
 	// -----------------------------------------------
@@ -88,7 +88,7 @@ public class Purchase {
 	 * @return the value of the stock at the time it was sold
 	 */
 	public double getSotckSalePrice() {
-		return sotckSalePrice;
+		return stockSalePrice;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Purchase {
 	 * changes the price of the stock
 	 */
 	public void setSotckSalePrice(double sotckSalePrice) {
-		this.sotckSalePrice = sotckSalePrice;
+		this.stockSalePrice = sotckSalePrice;
 	}
 
 	/**
