@@ -17,7 +17,7 @@ import jadex.micro.annotation.Agent;
  */
 @Agent
 // Nome da classe para não entrar em conflito com o Agent do Jadex
-public class StandardAgent {
+public class StandardBDI {
 
 	private String name;
 	/**

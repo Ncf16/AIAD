@@ -3,16 +3,19 @@ package company;
 import java.util.PriorityQueue;
 
 import agents.Purchase;
+import jadex.bdiv3.annotation.Belief;
 import jadex.micro.annotation.Agent;
 
 @Agent
-public class CompanyAgent {
+public class CompanyBDI {
+	@Belief
 	private Stock companyStock;
+	
 	private String companyName;
 
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
-	public CompanyAgent(String name) {
+	public CompanyBDI(String name) {
 		this.companyName = name;
 	}
 

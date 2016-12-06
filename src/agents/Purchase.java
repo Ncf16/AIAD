@@ -3,17 +3,17 @@ package agents;
 import java.util.Comparator;
 import java.util.Date;
 
-import company.CompanyAgent;
+import company.CompanyBDI;
 import company.Stock;
 
 public class Purchase {
 	private Stock stockBought;
-	private StandardAgent buyer;
+	private StandardBDI buyer;
 	private double sotckPurchasePrice;
 	private double sotckSalePrice;
 	private int numberOfStocks;
 	private Date dateOfPurchase;
-	private CompanyAgent company;
+	private CompanyBDI company;
 	/**
 	 * Pretty much if a purchase is still valid, we need this to keep track of
 	 * everything happening (The question is, are agents will be independent
@@ -34,7 +34,7 @@ public class Purchase {
 		}
 	};
 
-	public boolean sellStock(StandardAgent seller) {
+	public boolean sellStock(StandardBDI seller) {
 
 		// TODO check if seller is buyer
 		if (!seller.equals(buyer))
@@ -49,8 +49,7 @@ public class Purchase {
 		return sotckSalePrice - sotckPurchasePrice;
 	}
 
-	
-	//-----------------------------------------------
+	// -----------------------------------------------
 	/**
 	 * Returns the Stock bought
 	 * 
@@ -72,7 +71,7 @@ public class Purchase {
 	 * 
 	 * @return the buyer of the purchase
 	 */
-	public StandardAgent getBuyer() {
+	public StandardBDI getBuyer() {
 		return buyer;
 	}
 
@@ -80,7 +79,7 @@ public class Purchase {
 	 * Changes the buyer who made the purchase
 	 * 
 	 */
-	public void setBuyer(StandardAgent buyer) {
+	public void setBuyer(StandardBDI buyer) {
 		this.buyer = buyer;
 	}
 
