@@ -49,6 +49,8 @@ public class Main {
 		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" }, new Object[] { platform, "A2" }));
 		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 		cid = tupleFut.getFirstResult();
+		broker.agents.add(cid);
+		
 
 	}
 }
