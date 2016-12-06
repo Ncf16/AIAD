@@ -5,13 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import jadex.bridge.IComponentIdentifier;
+import javafx.util.Pair;
 
 public class InformationBroker {
 
 	private static InformationBroker instance = null;
 	
-	public HashMap<String, Double> companyRates = new HashMap<String, Double>();
+	public HashMap<IComponentIdentifier, Double> companyRates = new HashMap<IComponentIdentifier, Double>();
 	public List<IComponentIdentifier> agents = new ArrayList<IComponentIdentifier>();
+	
+	public List<Pair<String, Integer>> companies = new ArrayList<Pair<String,Integer>>();
+	
 	
 	private InformationBroker(){
 		

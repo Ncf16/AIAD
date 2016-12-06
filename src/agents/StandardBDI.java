@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import broker.InformationBroker;
 import company.Stock;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bridge.IComponentIdentifier;
@@ -28,59 +29,95 @@ import jadex.micro.annotation.ProvidedServices;
 import jadex.micro.annotation.RequiredServices;
 import jadex.micro.annotation.RequiredService;
 import services.IFollowService;
- 
+
 @Agent
-@RequiredServices(@RequiredService(name="followservices", type=IFollowService.class, multiple=true, binding=@Binding(scope=Binding.SCOPE_GLOBAL)))
-@ProvidedServices(@ProvidedService(type=IFollowService.class))
-public class StandardBDI implements IFollowService{
+@RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
+@ProvidedServices(@ProvidedService(type = IFollowService.class))
+public class StandardBDI implements IFollowService {
 
 	@AgentArgument
 	IExternalAccess platform;
-	
+
 	@Belief
 	@AgentArgument
 	private String name;
-	
-	
-	private ArrayList<IComponentIdentifier> companionCIDs;
-	
-	 @Agent
-	 protected IInternalAccess bdi;
-	 
-	 
+
+	@Belief
+	private IComponentIdentifier identifier;
+
+	private InformationBroker broker;
+
+	private List<IComponentIdentifier> companionCIDs = new ArrayList<IComponentIdentifier>();
+
+	private IComponentIdentifier companion;
+
+	@Agent
+	protected IInternalAccess bdi;
+
 	@AgentCreated
-	public void init(){
+	public void init() {
+		broker = InformationBroker.getInstance();
 		Map<String, Object> arguments = bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 		platform = (IExternalAccess) arguments.get("platform");
 		name = (String) arguments.get("name");
 	}
-	 
+
 	@AgentBody
-	public void executeBody(){
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,IComponentManagementService.class);
+	public void executeBody() {
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
 		IComponentManagementService cms = fut.get();
-			  
-	
-			  
-			  
-		System.out.println("Own CID: " + bdi.getComponentIdentifier() +", Own name: " + name + ", companionCID: "+ "companion's Name: ");
-		
+
+		identifier = bdi.getComponentIdentifier();
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fillCompanions();
+		getSingleCompanion();
+		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
+
 	}
-	
+
+	public void test() {
+		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
+	}
+
 	@Override
 	public String gimmeYourStringNOW() {
 		return name;
 	}
-	
-	/*
-	@AgentKilled
-	public IFuture<Void> agentKilled()
-	{
-		return Void;
+
+	public void fillCompanions() {
+		for (int i = 0; i < broker.agents.size(); i++) {
+			IComponentIdentifier cid = broker.agents.get(i);
+			if (cid != identifier){
+				System.out.println("Cid: " + cid + " vs identifier: " + identifier);				
+				companionCIDs.add(cid);
+			}
+		}
+
+		System.out.println(companionCIDs);
+
 	}
-	*/
-	
-	
+
+	public void getSingleCompanion() {
+		for (int i = 0; i < broker.agents.size(); i++) {
+			IComponentIdentifier cid = broker.agents.get(i);
+			if (cid != identifier) {
+				companion = identifier;
+				break;
+			}
+		}
+		System.out.println("I am: " + identifier + ", Single Companion: " + companion);
+	}
+
+	/*
+	 * @AgentKilled public IFuture<Void> agentKilled() { return Void; }
+	 */
+
 	/**
 	 * Record of Stocks bought
 	 */
@@ -92,12 +129,11 @@ public class StandardBDI implements IFollowService{
 	@Belief
 	private PriorityQueue<Purchase> stocksBought;
 	/**
-	 * Companies the Agent already trusts ( assumimos que ele ja tem algum
-	 * conhecimento de antes)
+	 * Companies the Agent already trusts ( assumimos que ele ja tem algum conhecimento de antes)
 	 */
 	@Belief
 	private Set<String> trustedCompanies = new HashSet<String>();
-	
+
 	@Belief
 	private List<String> followedAgentsCID = new ArrayList<String>();
 
@@ -119,18 +155,11 @@ public class StandardBDI implements IFollowService{
 		return false;
 	}
 
-
-	
-	
-	
-	
-	
 	// -------------------------------------------
 
 	/**
 	 * 
-	 * @return a priority queue of stocks that have been sold by the agent
-	 *         ordered by Date
+	 * @return a priority queue of stocks that have been sold by the agent ordered by Date
 	 */
 	public PriorityQueue<Purchase> getStocksSold() {
 		return stocksSold;
@@ -147,8 +176,7 @@ public class StandardBDI implements IFollowService{
 
 	/**
 	 * 
-	 * @return a priority queue of stocks that have been bought by the agent
-	 *         ordered by Date
+	 * @return a priority queue of stocks that have been bought by the agent ordered by Date
 	 */
 	@Belief
 	public PriorityQueue<Purchase> getStocksBought() {
@@ -189,7 +217,5 @@ public class StandardBDI implements IFollowService{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
 
 }
