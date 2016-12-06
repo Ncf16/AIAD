@@ -9,7 +9,6 @@ import jadex.micro.annotation.Agent;
 public class CompanyAgent {
 	private Stock companyStock;
 	private String companyName;
-	private int numberOfStocks;
 
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
@@ -41,11 +40,4 @@ public class CompanyAgent {
 		this.stocksSold = stocksSold;
 	}
 
-	public int getNumberOfStocks() {
-		return numberOfStocks;
-	}
-
-	public void setNumberOfStocks(int numberOfStocks) {
-		this.numberOfStocks = numberOfStocks;
-	}
 }
