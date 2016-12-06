@@ -5,15 +5,16 @@ import java.util.Date;
 
 import company.CompanyBDI;
 import company.Stock;
+import jadex.bridge.IComponentIdentifier;
 
-public class Purchase {
+public class Purchase extends CloneObject{
 	private Stock stockBought;
-	private StandardBDI buyer;
+	private IComponentIdentifier buyer;
 	private double sotckPurchasePrice;
 	private double stockSalePrice;
 	private int numberOfStocks;
-	private Date dateOfPurchase;
-	private CompanyBDI company;
+	private long dateOfPurchase;
+	private IComponentIdentifier company;
 	/**
 	 * Pretty much if a purchase is still valid, we need this to keep track of
 	 * everything happening (The question is, are agents will be independent
@@ -28,9 +29,9 @@ public class Purchase {
 	public static Comparator<Purchase> comparator = new Comparator<Purchase>() {
 		@Override
 		public int compare(Purchase c1, Purchase c2) {
-			if (c1 == null || c2 == null)
+			if (c1 == null || c2 == null || !(c1 instanceof Purchase) || !(c2 instanceof Purchase))
 				return -1;
-			return (c1.getDateOfPurchase().compareTo(c2.getDateOfPurchase()));
+			return Long.compare(c1.getDateOfPurchase(), c2.getDateOfPurchase());
 		}
 	};
 
@@ -71,7 +72,7 @@ public class Purchase {
 	 * 
 	 * @return the buyer of the purchase
 	 */
-	public StandardBDI getBuyer() {
+	public IComponentIdentifier getBuyer() {
 		return buyer;
 	}
 
@@ -79,7 +80,7 @@ public class Purchase {
 	 * Changes the buyer who made the purchase
 	 * 
 	 */
-	public void setBuyer(StandardBDI buyer) {
+	public void setBuyer(IComponentIdentifier buyer) {
 		this.buyer = buyer;
 	}
 
@@ -119,7 +120,7 @@ public class Purchase {
 	 * 
 	 * @return the date of purchase
 	 */
-	public Date getDateOfPurchase() {
+	public long getDateOfPurchase() {
 		return dateOfPurchase;
 	}
 
@@ -127,7 +128,7 @@ public class Purchase {
 	 * 
 	 * changes the date of the purchase
 	 */
-	public void setDateOfPurchase(Date dateOfPurchase) {
+	public void setDateOfPurchase(long dateOfPurchase) {
 		this.dateOfPurchase = dateOfPurchase;
 	}
 
@@ -137,6 +138,38 @@ public class Purchase {
 
 	public void setSold(boolean sold) {
 		this.sold = sold;
+	}
+
+	public double getSotckPurchasePrice() {
+		return sotckPurchasePrice;
+	}
+
+	public void setSotckPurchasePrice(double sotckPurchasePrice) {
+		this.sotckPurchasePrice = sotckPurchasePrice;
+	}
+
+	public double getStockSalePrice() {
+		return stockSalePrice;
+	}
+
+	public void setStockSalePrice(double stockSalePrice) {
+		this.stockSalePrice = stockSalePrice;
+	}
+
+	public IComponentIdentifier getCompany() {
+		return company;
+	}
+
+	public static Comparator<Purchase> getComparator() {
+		return comparator;
+	}
+
+	public static void setComparator(Comparator<Purchase> comparator) {
+		Purchase.comparator = comparator;
+	}
+
+	public void setCompany(IComponentIdentifier componentIdentifier) {
+		this.company = componentIdentifier;
 	}
 
 }
