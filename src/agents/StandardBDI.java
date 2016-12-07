@@ -15,13 +15,17 @@ import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IArgumentsResultsFeature;
+import jadex.bridge.component.IExecutionFeature;
+import jadex.bridge.service.IService;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.IFuture;
+import jadex.commons.future.IIntermediateFuture;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentArgument;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
+import jadex.micro.annotation.AgentFeature;
 import jadex.micro.annotation.AgentKilled;
 import jadex.micro.annotation.Binding;
 import jadex.micro.annotation.ProvidedService;
@@ -53,6 +57,7 @@ public class StandardBDI implements IFollowService {
 
 	@Agent
 	protected IInternalAccess bdi;
+	
 
 	@AgentCreated
 	public void init() {
@@ -77,6 +82,15 @@ public class StandardBDI implements IFollowService {
 		}
 		fillCompanions();
 		getSingleCompanion();
+		
+		//TEST STUFF, TRYIN TO IMPLEMENT THE SERVICE! HALP US PLS, I BEG U
+	
+		IFuture<IExternalAccess> futExt = cms.getExternalAccess(companion);
+		IExternalAccess extAcc = futExt.get();
+		
+		IIntermediateFuture<IService> ifut = SServiceProvider.getDeclaredServices(extAcc);
+		
+		
 		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
 
 	}
@@ -90,24 +104,23 @@ public class StandardBDI implements IFollowService {
 		return name;
 	}
 
+	// Test functions
 	public void fillCompanions() {
 		for (int i = 0; i < broker.agents.size(); i++) {
 			IComponentIdentifier cid = broker.agents.get(i);
-			if (cid != identifier){
-				System.out.println("Cid: " + cid + " vs identifier: " + identifier);				
+			if (!cid.equals(identifier)){				
 				companionCIDs.add(cid);
 			}
 		}
 
-		System.out.println(companionCIDs);
-
 	}
 
+	// Test functions
 	public void getSingleCompanion() {
 		for (int i = 0; i < broker.agents.size(); i++) {
 			IComponentIdentifier cid = broker.agents.get(i);
-			if (cid != identifier) {
-				companion = identifier;
+			if (!cid.equals(identifier)) {
+				companion = cid;
 				break;
 			}
 		}
