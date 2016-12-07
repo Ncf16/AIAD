@@ -14,6 +14,7 @@ import company.Stock.StockType;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.GoalParameter;
+import jadex.bdiv3.annotation.GoalRecurCondition;
 import jadex.bdiv3.annotation.GoalResult;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Trigger;
@@ -43,6 +44,8 @@ import jadex.micro.annotation.ProvidedServices;
 import jadex.micro.annotation.RequiredServices;
 import jadex.micro.annotation.RequiredService;
 import services.IFollowService;
+
+// Multi archetypal agent: can follow different plans along it's life: greedy, cautious, etc.
 
 @Agent
 @Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class),
@@ -121,8 +124,9 @@ public class StandardBDI implements IFollowService {
 		IFuture<IExternalAccess> futExt = cms.getExternalAccess(identifier);
 		IExternalAccess extAcc = futExt.get();
 		
-		IIntermediateFuture<IService> ifut = SServiceProvider.getDeclaredServices(extAcc);
+		bdiFeature.dispatchTopLevelGoal(currentMoney);
 		
+		/*
 		IFuture<IFollowService> fut1 = SServiceProvider.getService(extAcc, IFollowService.class);
 			    fut1.addResultListener(new IResultListener<IFollowService>() {
 			     
@@ -138,27 +142,42 @@ public class StandardBDI implements IFollowService {
 					
 				}
 			    });
+		*/
 			
 	}
 	
 	@Plan(trigger=@Trigger(goals=GetRich.class))
-	protected void getRichPlan(GetRich goal){
+	protected void getRichPlan1(GetRich goal){
+		currentMoney += 10;
+		System.out.println("Carrying out plan 1, current money is: " + currentMoney) ;
 		
 	}
 	
-	@Goal
+	@Plan(trigger=@Trigger(goals=GetRich.class))
+	protected void getRichPlan2(GetRich goal){
+		currentMoney += 20;
+		System.out.println("Carrying out plan 2, current money is: " + currentMoney) ;
+	}
+	
+	@Goal(recur = true, retrydelay = 1000)
 	public class GetRich
 	{
 	  @GoalParameter
-	  protected Double currentMoney;
+	  protected Double goalMoney;
 		
 	  @GoalResult
-	  protected Double goalMoney;
+	  protected Double finalMoney;
 
-	  public GetRich(Double currentMoney)
+	  public GetRich(Double goalMoney)
 	  {
-	    this.currentMoney = currentMoney;
+	    this.goalMoney = goalMoney;
 	  }
+	  
+	  @GoalRecurCondition(beliefs="time")
+		public boolean checkRecur() {
+			// The buyer's job is done when all required units have been purchased
+			return currentMoney > goalMoney;
+		}
 
 	}
 	
