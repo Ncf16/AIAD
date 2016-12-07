@@ -1,9 +1,12 @@
 package company;
 
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import agents.BaseAgent;
 import agents.Purchase;
+import broker.InformationBroker;
+import broker.Pair;
 import company.Stock.StockType;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.PlanAPI;
@@ -69,6 +72,9 @@ public class CompanyBDI extends BaseAgent {
 			@Override
 			public IFuture<Void> execute(IInternalAccess arg0) {
 				companyStock.changePrice();
+				System.out.println("Price is : " + companyStock.getStockPrice());
+				InformationBroker.getInstance().addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
+						internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
 				return IFuture.DONE;
 			}
 		});

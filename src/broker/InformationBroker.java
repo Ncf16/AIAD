@@ -91,20 +91,39 @@ public class InformationBroker {
 		fillStandardDeviation(companyStock.getKey(), companyStock.getValue());
 		fillAbsDifference(companyStock.getKey(), companyStock.getValue());
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
+
+		System.out.print("Stock price: ");
+		for (Pair<Double, IComponentIdentifier> p : stockPrices)
+			System.out.println(p + "   " + p.getValue().getLocalName());
+		System.out.println("");
+		System.out.print("Abs Diff: ");
+		for (Pair<Double, IComponentIdentifier> p : stockPricesAbsDiff)
+			System.out.println(p + "   " + p.getValue().getLocalName());
+		System.out.println("");
+		System.out.print("Stadr Dev: ");
+		for (Pair<Double, IComponentIdentifier> p : stockPricesStandardDeviation)
+			System.out.println(p + "   " + p.getValue().getLocalName());
+
+		System.out.println("End");
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
-		removeStockListPair(company, stockPrices);
+		removeStockListPair(company, stockPricesStandardDeviation);
+
 		stockPricesStandardDeviation
 				.add(new Pair<Double, IComponentIdentifier>(Statistics.instance().getStdDev(list), company));
 	}
 
 	public synchronized void fillAbsDifference(IComponentIdentifier company, ArrayList<Double> list) {
+		double absDiff;
 		if (list.size() > MORE_THAN_X_ELEM) {
 			removeStockListPair(company, stockPricesAbsDiff);
-			double absDiff = Math.abs(list.get(list.size() - 1) - list.get(0));
-			stockPricesAbsDiff.add(new Pair<Double, IComponentIdentifier>(absDiff, company));
-		}
+			absDiff = Math.abs(list.get(list.size() - 1) - list.get(0));
+		} else
+			absDiff = 0.0;
+
+		stockPricesAbsDiff.add(new Pair<Double, IComponentIdentifier>(absDiff, company));
+
 	}
 
 	public synchronized void fillstockPrices(IComponentIdentifier company, ArrayList<Double> list) {

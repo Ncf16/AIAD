@@ -25,4 +25,9 @@ public class Pair<L, R> {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "Pair [key=" + key + ", value=" + value + "]";
+	}
+
 }
