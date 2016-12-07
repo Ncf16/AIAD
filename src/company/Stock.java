@@ -1,8 +1,11 @@
 package company;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Stock {
+	private static final int LOG_DURATION = 30;
+
 	public enum StockType {
 		NORMAL, VOLATILE, VERY_VOLATILE
 	}
@@ -12,6 +15,7 @@ public class Stock {
 	private double priceFluctuation = 0.0;
 	private StockType type;
 	private Random randomNumber = new Random();
+	private ArrayList<Double> oldValues = new ArrayList<Double>(LOG_DURATION);
 
 	public Stock(double stockPrice) {
 		this.stockPrice = stockPrice;
@@ -22,6 +26,7 @@ public class Stock {
 	}
 
 	public Stock(double stockPrice, StockType type) {
+		oldValues.add(stockPrice);
 		this.stockPrice = stockPrice;
 		this.type = type;
 		setFluctuationWithType(type);
@@ -69,14 +74,22 @@ public class Stock {
 		return priceFluctuation;
 	}
 
+	public void addOldStockValue(double newValue) {
+		if (oldValues.size() > LOG_DURATION) {
+			oldValues.remove(0);
+		}
+		oldValues.add(newValue);
+	}
+
 	public void setPriceFluctuation(double priceFluctuation) {
 		this.priceFluctuation = priceFluctuation;
 	}
 
 	public void changePrice() {
-		System.out.println("Changing Price");
+		// System.out.println("Changing Price");
 		double variation = (randomNumber.nextDouble() * getPriceFluctuation() * isItPositiveFluctuation() / 100.0) + 1;
 		stockPrice = stockPrice * variation;
+		addOldStockValue(stockPrice);
 	}
 
 	public StockType getType() {
@@ -86,4 +99,13 @@ public class Stock {
 	public void setType(StockType type) {
 		this.type = type;
 	}
+
+	public ArrayList<Double> getOldValues() {
+		return oldValues;
+	}
+
+	public void setOldValues(ArrayList<Double> oldValues) {
+		this.oldValues = oldValues;
+	}
+
 }

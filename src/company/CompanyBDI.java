@@ -33,8 +33,7 @@ import jadex.micro.annotation.ProvidedServices;;
 @Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "companyName"),
 		@Argument(name = "stockPrice", clazz = Double.class, defaultvalue = "5.0"),
 		@Argument(name = "stockType", clazz = StockType.class, defaultvalue = "1") })
-@ProvidedServices({ @ProvidedService(type = CompanyServices.class) })
-public class CompanyBDI extends BaseAgent implements CompanyServices {
+public class CompanyBDI extends BaseAgent {
 
 	@AgentArgument
 	private Stock companyStock = new Stock();
@@ -46,6 +45,7 @@ public class CompanyBDI extends BaseAgent implements CompanyServices {
 	@AgentFeature
 	protected IBDIAgentFeature bdiFeature;
 
+	// TODO ainda é relevante?
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
 
 	@AgentFeature
@@ -80,12 +80,6 @@ public class CompanyBDI extends BaseAgent implements CompanyServices {
 
 	public void createStock(double price) {
 		companyStock = new Stock(price);
-	}
-
-	@Override
-	public IFuture<Void> updateStockValue() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Plan
@@ -124,22 +118,10 @@ public class CompanyBDI extends BaseAgent implements CompanyServices {
 
 	}
 
-	@Override
-	public IFuture<Purchase> sellStock(IComponentIdentifier buyer, int numberOfStocksToBuy) {
-		Purchase c = new Purchase();
-		c.setCompany(internalAccess.getComponentIdentifier());
-		c.setBuyer(buyer);
-		c.setNumberOfStocks(numberOfStocksToBuy);
-		c.setDateOfPurchase(System.currentTimeMillis());
-		c.setSold(false);
-		c.setStockBought(companyStock);
-		return null;
-	}
-
-	@Override
-	public IFuture<Void> updateBrokerInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Called each time the Company update it's StockPrice
+	 */
+	public void updateBrokerInfo() {
 	}
 
 }
