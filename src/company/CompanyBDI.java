@@ -38,6 +38,9 @@ import jadex.micro.annotation.ProvidedServices;;
 		@Argument(name = "stockType", clazz = StockType.class, defaultvalue = "1") })
 public class CompanyBDI extends BaseAgent {
 
+	private static final int START_OF_STOCK_PRICE_UPDATES = 0;
+	private static final int TIME_BETWEEN_STOCK_PRICE_UPDATE = 5000;
+
 	@AgentArgument
 	private Stock companyStock = new Stock();
 
@@ -68,16 +71,18 @@ public class CompanyBDI extends BaseAgent {
 
 	@AgentBody
 	public void body() {
-		execFeature.repeatStep(0, 1000, new IComponentStep<Void>() {
-			@Override
-			public IFuture<Void> execute(IInternalAccess arg0) {
-				companyStock.changePrice();
-				System.out.println("Price is : " + companyStock.getStockPrice());
-				InformationBroker.getInstance().addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
-						internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
-				return IFuture.DONE;
-			}
-		});
+		execFeature.repeatStep(START_OF_STOCK_PRICE_UPDATES, TIME_BETWEEN_STOCK_PRICE_UPDATE,
+				new IComponentStep<Void>() {
+					@Override
+					public IFuture<Void> execute(IInternalAccess arg0) {
+						companyStock.changePrice();
+						System.out.println("Price is : " + companyStock.getStockPrice());
+						InformationBroker.getInstance()
+								.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
+										internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
+						return IFuture.DONE;
+					}
+				});
 	}
 
 	public boolean endCompany() {
