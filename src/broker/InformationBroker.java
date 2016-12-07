@@ -24,54 +24,54 @@ public class InformationBroker {
 
 	public List<Pair<String, Integer>> companyRates = new ArrayList<Pair<String, Integer>>();
 
-	public List<Pair<Double, IComponentIdentifier>> stockPricesAbsDiff = new ArrayList<Pair<Double, IComponentIdentifier>>() {
+	public List<Pair<IComponentIdentifier, Double>> stockPricesAbsDiff = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public boolean add(Pair<Double, IComponentIdentifier> mt) {
+		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<Double, IComponentIdentifier>>() {
+			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
-				public int compare(Pair<Double, IComponentIdentifier> o1, Pair<Double, IComponentIdentifier> o2) {
-					return 0 - o1.getKey().compareTo(o2.getKey());
+				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
+					return 0 - o1.getValue().compareTo(o2.getValue());
 				}
 			});
 			return true;
 		}
 	};
 
-	public List<Pair<Double, IComponentIdentifier>> stockPricesStandardDeviation = new ArrayList<Pair<Double, IComponentIdentifier>>() {
+	public List<Pair<IComponentIdentifier, Double>> stockPricesStandardDeviation = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public boolean add(Pair<Double, IComponentIdentifier> mt) {
+		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesStandardDeviation, new Comparator<Pair<Double, IComponentIdentifier>>() {
+			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
-				public int compare(Pair<Double, IComponentIdentifier> o1, Pair<Double, IComponentIdentifier> o2) {
-					return 0 - o1.getKey().compareTo(o2.getKey());
+				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
+					return 0 - o1.getValue().compareTo(o2.getValue());
 				}
 			});
 			return true;
 		}
 	};
 
-	public List<Pair<Double, IComponentIdentifier>> stockPrices = new ArrayList<Pair<Double, IComponentIdentifier>>() {
+	public List<Pair<IComponentIdentifier, Double>> stockPrices = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public boolean add(Pair<Double, IComponentIdentifier> mt) {
+		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPrices, new Comparator<Pair<Double, IComponentIdentifier>>() {
+			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
-				public int compare(Pair<Double, IComponentIdentifier> o1, Pair<Double, IComponentIdentifier> o2) {
-					return 0 - o1.getKey().compareTo(o2.getKey());
+				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
+					return 0 - o1.getValue().compareTo(o2.getValue());
 				}
 			});
 			return true;
@@ -88,57 +88,58 @@ public class InformationBroker {
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
 		System.out.print("Stock price: ");
-		for (Pair<Double, IComponentIdentifier> p : stockPrices)
-			System.out.println(p + "   " + p.getValue().getLocalName());
+		for (Pair<IComponentIdentifier, Double> p : stockPrices)
+			System.out.println(p + " " + p.getKey().getLocalName());
 		System.out.println("");
 		System.out.print("Abs Diff: ");
-		for (Pair<Double, IComponentIdentifier> p : stockPricesAbsDiff)
-			System.out.println(p + "   " + p.getValue().getLocalName());
+		for (Pair<IComponentIdentifier, Double> p : stockPricesAbsDiff)
+			System.out.println(p + " " + p.getKey().getLocalName());
 		System.out.println("");
 		System.out.print("Stadr Dev: ");
-		for (Pair<Double, IComponentIdentifier> p : stockPricesStandardDeviation)
-			System.out.println(p + "   " + p.getValue().getLocalName());
+		for (Pair<IComponentIdentifier, Double> p : stockPricesStandardDeviation)
+			System.out.println(p + " " + p.getKey().getLocalName());
 
 		System.out.println("End");
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
-		removeStockListPair(company, stockPricesStandardDeviation);
+		double stdrDev = Statistics.instance().getStdDev(list);
 
-		stockPricesStandardDeviation
-				.add(new Pair<Double, IComponentIdentifier>(Statistics.instance().getStdDev(list), company));
+		if (!replaceStockListPair(company, stockPricesStandardDeviation, stdrDev))
+			stockPricesStandardDeviation.add(new Pair<IComponentIdentifier, Double>(company, stdrDev));
 	}
 
 	public synchronized void fillAbsDifference(IComponentIdentifier company, ArrayList<Double> list) {
 		double absDiff;
 		if (list.size() > MORE_THAN_X_ELEM) {
-			removeStockListPair(company, stockPricesAbsDiff);
 			absDiff = Math.abs(list.get(list.size() - 1) - list.get(0));
 		} else
 			absDiff = 0.0;
 
-		stockPricesAbsDiff.add(new Pair<Double, IComponentIdentifier>(absDiff, company));
+		if (!replaceStockListPair(company, stockPricesAbsDiff, absDiff))
+			stockPricesAbsDiff.add(new Pair<IComponentIdentifier, Double>(company, absDiff));
 
 	}
 
 	public synchronized void fillstockPrices(IComponentIdentifier company, ArrayList<Double> list) {
 		if (!list.isEmpty()) {
-			removeStockListPair(company, stockPrices);
-			stockPrices.add(new Pair<Double, IComponentIdentifier>(list.get(list.size() - 1), company));
+			if (!replaceStockListPair(company, stockPrices, list.get(list.size() - 1)))
+				stockPrices.add(new Pair<IComponentIdentifier, Double>(company, list.get(list.size() - 1)));
 		}
 	}
 
-	private synchronized boolean removeStockListPair(IComponentIdentifier company,
-			List<Pair<Double, IComponentIdentifier>> list) {
+	private synchronized boolean replaceStockListPair(IComponentIdentifier company,
+			List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
 
-		for (Iterator<Pair<Double, IComponentIdentifier>> iter = list.listIterator(); iter.hasNext();) {
-			Pair<Double, IComponentIdentifier> a = iter.next();
-			if (a.getValue().equals(company)) {
-				iter.remove();
+		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
+			Pair<IComponentIdentifier, Double> a = iter.next();
+			if (a.getKey().equals(company)) {
+				a.setValue(newValue);
 				return true;
 			}
 		}
 		return false;
+
 	}
 
 	public static InformationBroker getInstance() {
