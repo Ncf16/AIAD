@@ -21,6 +21,7 @@ import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.IFuture;
 import jadex.commons.future.IIntermediateFuture;
+import jadex.commons.future.IResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentArgument;
 import jadex.micro.annotation.AgentBody;
@@ -90,9 +91,22 @@ public class StandardBDI implements IFollowService {
 		
 		IIntermediateFuture<IService> ifut = SServiceProvider.getDeclaredServices(extAcc);
 		
-		
-		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
+		IFuture<IFollowService> fut1 = SServiceProvider.getService(extAcc, IFollowService.class);
+			    fut1.addResultListener(new IResultListener<IFollowService>() {
+			     
+				@Override
+				public void resultAvailable(IFollowService arg0) {
+					System.out.println("I am : " + name + " and my companion's name is: " + arg0.gimmeYourStringNOW());
+					
+				}
 
+				@Override
+				public void exceptionOccurred(Exception arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			    });
+			
 	}
 
 	public void test() {
