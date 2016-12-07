@@ -10,6 +10,7 @@ import java.util.Set;
 
 import broker.InformationBroker;
 import company.Stock;
+import company.Stock.StockType;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
@@ -28,6 +29,8 @@ import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentFeature;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 import jadex.micro.annotation.Binding;
 import jadex.micro.annotation.ProvidedService;
 import jadex.micro.annotation.ProvidedServices;
@@ -36,6 +39,9 @@ import jadex.micro.annotation.RequiredService;
 import services.IFollowService;
 
 @Agent
+@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class),
+	@Argument(name = "name", clazz = String.class, defaultvalue = "A"),
+	@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
 public class StandardBDI implements IFollowService {
@@ -46,15 +52,31 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	@AgentArgument
 	private String name;
+	
+	@Belief
+	@AgentArgument
+	private Double startingMoney;
 
+	@Belief 
+	private Double currentMoney;
+	
+	@Belief
+	private Double goalMoney; // Is this supposed to be a belief?
+	
+	@Belief int maxFollowed;
+	
+	@Belief int maxStockPriceToBuy; 
+	
 	@Belief
 	private IComponentIdentifier identifier;
 
+	@Belief
+	private List<IComponentIdentifier> followed = new ArrayList<IComponentIdentifier>();
+	
+	@Belief
+	private List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
+	
 	private InformationBroker broker;
-
-	private List<IComponentIdentifier> companionCIDs = new ArrayList<IComponentIdentifier>();
-
-	private IComponentIdentifier companion;
 
 	@Agent
 	protected IInternalAccess bdi;
@@ -72,8 +94,11 @@ public class StandardBDI implements IFollowService {
 	public void executeBody() {
 		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
 		IComponentManagementService cms = fut.get();
-
+	
 		identifier = bdi.getComponentIdentifier();
+		currentMoney = startingMoney;
+		
+		System.out.println("I am: " + identifier + " and I have " + currentMoney + "$"); 
 
 		try {
 			Thread.sleep(1000);
@@ -81,12 +106,9 @@ public class StandardBDI implements IFollowService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		fillCompanions();
-		getSingleCompanion();
 		
-		//TEST STUFF, TRYIN TO IMPLEMENT THE SERVICE! HALP US PLS, I BEG U
-	
-		IFuture<IExternalAccess> futExt = cms.getExternalAccess(companion);
+		// Service call
+		IFuture<IExternalAccess> futExt = cms.getExternalAccess(identifier);
 		IExternalAccess extAcc = futExt.get();
 		
 		IIntermediateFuture<IService> ifut = SServiceProvider.getDeclaredServices(extAcc);
@@ -96,7 +118,7 @@ public class StandardBDI implements IFollowService {
 			     
 				@Override
 				public void resultAvailable(IFollowService arg0) {
-					System.out.println("I am : " + name + " and my companion's name is: " + arg0.gimmeYourStringNOW());
+					System.out.println("I am : " + name + " and my companion's name is: " + arg0.gimmeYourStringNOW() + " and I have: " + currentMoney + "$");
 					
 				}
 
@@ -109,37 +131,15 @@ public class StandardBDI implements IFollowService {
 			
 	}
 
-	public void test() {
-		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
-	}
 
 	@Override
 	public String gimmeYourStringNOW() {
 		return name;
 	}
 
-	// Test functions
-	public void fillCompanions() {
-		for (int i = 0; i < broker.agents.size(); i++) {
-			IComponentIdentifier cid = broker.agents.get(i);
-			if (!cid.equals(identifier)){				
-				companionCIDs.add(cid);
-			}
-		}
+	
 
-	}
-
-	// Test functions
-	public void getSingleCompanion() {
-		for (int i = 0; i < broker.agents.size(); i++) {
-			IComponentIdentifier cid = broker.agents.get(i);
-			if (!cid.equals(identifier)) {
-				companion = cid;
-				break;
-			}
-		}
-		System.out.println("I am: " + identifier + ", Single Companion: " + companion);
-	}
+	
 
 	/*
 	 * @AgentKilled public IFuture<Void> agentKilled() { return Void; }
@@ -244,5 +244,36 @@ public class StandardBDI implements IFollowService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	/*
+	public void test() {
+		System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " + "companion's Name: ");
+	}
+	
+	// Test functions
+	public void fillCompanions() {
+		for (int i = 0; i < broker.agents.size(); i++) {
+			IComponentIdentifier cid = broker.agents.get(i);
+			if (!cid.equals(identifier)){				
+				companionCIDs.add(cid);
+			}
+		}
+
+	}
+	
+	// Test functions
+	public void getSingleCompanion() {
+		for (int i = 0; i < broker.agents.size(); i++) {
+			IComponentIdentifier cid = broker.agents.get(i);
+			if (!cid.equals(identifier)) {
+				companion = cid;
+				break;
+			}
+		}
+		System.out.println("I am: " + identifier + ", Single Companion: " + companion);
+	}
+	
+	*/
 
 }

@@ -11,23 +11,18 @@ import company.Stock;
 import jadex.bridge.IComponentIdentifier;
 //import javafx.util.Pair;
 
-/**
- * TODO WARNING CREATED OWN CLASS PAIR CHECK
- * 
- *
- *
- */
 public class InformationBroker {
 
 	private static final int MORE_THAN_X_ELEM = 1;
 
 	private static InformationBroker instance = null;
 
-	public HashMap<IComponentIdentifier, Double> companyRates = new HashMap<IComponentIdentifier, Double>();
+	// Deprecated
+	//public HashMap<IComponentIdentifier, Double> companyRates = new HashMap<IComponentIdentifier, Double>();
 
 	public List<IComponentIdentifier> agents = new ArrayList<IComponentIdentifier>();
 
-	public List<Pair<String, Integer>> companies = new ArrayList<Pair<String, Integer>>();
+	public List<Pair<String, Integer>> companyRates = new ArrayList<Pair<String, Integer>>();
 
 	public List<Pair<Double, IComponentIdentifier>> stockPricesAbsDiff = new ArrayList<Pair<Double, IComponentIdentifier>>() {
 		/**
