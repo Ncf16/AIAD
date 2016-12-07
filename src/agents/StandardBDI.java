@@ -12,6 +12,12 @@ import broker.InformationBroker;
 import company.Stock;
 import company.Stock.StockType;
 import jadex.bdiv3.annotation.Belief;
+import jadex.bdiv3.annotation.Goal;
+import jadex.bdiv3.annotation.GoalParameter;
+import jadex.bdiv3.annotation.GoalResult;
+import jadex.bdiv3.annotation.Plan;
+import jadex.bdiv3.annotation.Trigger;
+import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
 import jadex.bridge.IInternalAccess;
@@ -78,8 +84,12 @@ public class StandardBDI implements IFollowService {
 	
 	private InformationBroker broker;
 
+	@AgentFeature
+	protected IBDIAgentFeature bdiFeature;
+	
 	@Agent
 	protected IInternalAccess bdi;
+	
 	
 
 	@AgentCreated
@@ -118,7 +128,7 @@ public class StandardBDI implements IFollowService {
 			     
 				@Override
 				public void resultAvailable(IFollowService arg0) {
-					System.out.println("I am : " + name + " and my companion's name is: " + arg0.gimmeYourStringNOW() + " and I have: " + currentMoney + "$");
+					//System.out.println("I am : " + name + " and my companion's name is: " + arg0.gimmeYourStringNOW() + " and I have: " + currentMoney + "$");
 					
 				}
 
@@ -130,7 +140,28 @@ public class StandardBDI implements IFollowService {
 			    });
 			
 	}
+	
+	@Plan(trigger=@Trigger(goals=GetRich.class))
+	protected void getRichPlan(GetRich goal){
+		
+	}
+	
+	@Goal
+	public class GetRich
+	{
+	  @GoalParameter
+	  protected Double currentMoney;
+		
+	  @GoalResult
+	  protected Double goalMoney;
 
+	  public GetRich(Double currentMoney)
+	  {
+	    this.currentMoney = currentMoney;
+	  }
+
+	}
+	
 
 	@Override
 	public String gimmeYourStringNOW() {

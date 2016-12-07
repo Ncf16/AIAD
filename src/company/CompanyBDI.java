@@ -8,6 +8,7 @@ import agents.Purchase;
 import broker.InformationBroker;
 import broker.Pair;
 import company.Stock.StockType;
+import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.PlanAPI;
 import jadex.bdiv3.annotation.PlanAborted;
@@ -46,10 +47,19 @@ public class CompanyBDI extends BaseAgent {
 
 	@AgentArgument
 	private String companyName;
+	
+	@Belief
+	private IComponentIdentifier identifier;
+	
+	@Belief
+	private InformationBroker broker = InformationBroker.getInstance();
 
 	/** The bdi agent. */
 	@AgentFeature
 	protected IBDIAgentFeature bdiFeature;
+	
+	@Agent
+	private IInternalAccess bdi;
 
 	// TODO ainda é relevante?
 	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
@@ -59,6 +69,7 @@ public class CompanyBDI extends BaseAgent {
 
 	@AgentCreated
 	public void init() {
+		identifier = bdi.getComponentIdentifier();
 		this.bdiFeature.adoptPlan(new CompanyPlan());
 		this.companyName = (String) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments()
 				.get("companyName");
@@ -76,9 +87,8 @@ public class CompanyBDI extends BaseAgent {
 					@Override
 					public IFuture<Void> execute(IInternalAccess arg0) {
 						companyStock.changePrice();
-						System.out.println("Price is : " + companyStock.getStockPrice());
-						InformationBroker.getInstance()
-								.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
+						System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
+						broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
 										internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
 						return IFuture.DONE;
 					}

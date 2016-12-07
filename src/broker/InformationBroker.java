@@ -87,6 +87,7 @@ public class InformationBroker {
 		fillAbsDifference(companyStock.getKey(), companyStock.getValue());
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
+		/*
 		System.out.print("Stock price: ");
 		for (Pair<IComponentIdentifier, Double> p : stockPrices)
 			System.out.println(p + " " + p.getKey().getLocalName());
@@ -100,6 +101,7 @@ public class InformationBroker {
 			System.out.println(p + " " + p.getKey().getLocalName());
 
 		System.out.println("End");
+		*/
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {

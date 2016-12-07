@@ -5,6 +5,7 @@ import java.util.Map;
 
 import broker.InformationBroker;
 import company.Stock;
+import company.Stock.StockType;
 import jadex.base.PlatformConfiguration;
 import jadex.base.RootComponentConfiguration;
 import jadex.base.Starter;
@@ -41,15 +42,37 @@ public class Main {
 
 		IComponentManagementService cms = fut.get();
 
-		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" }, new Object[] { platform, "A1" }));
+		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney" }, new Object[] { platform, "A1", 300.0 }));
 		ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 		IComponentIdentifier cid = tupleFut.getFirstResult();
 		broker.agents.add(cid);
 
-		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" }, new Object[] { platform, "A2" }));
+		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" , "startingMoney"}, new Object[] { platform, "A2", 400.0}));
 		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 		cid = tupleFut.getFirstResult();
 		broker.agents.add(cid);
+		
+		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney" }, new Object[] { platform, "A3", 500.0}));
+		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
+		cid = tupleFut.getFirstResult();
+		broker.agents.add(cid);
+		
+		 ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
+			      new Object[] {"APPLE", 5.0, StockType.VERY_VOLATILE }));
+		tupleFut = cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", ci);
+		cid = tupleFut.getFirstResult();
+		
+		/*
+		ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
+			      new Object[] {"GOOGLE", 6.0, StockType.VOLATILE }));
+		tupleFut = cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", ci);
+		cid = tupleFut.getFirstResult();
+		
+		ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
+			      new Object[] { "MICROSOFT", 7.0, StockType.VERY_VOLATILE }));
+		tupleFut = cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", ci);
+		cid = tupleFut.getFirstResult();
+		*/
 		
 
 	}
