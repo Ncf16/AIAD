@@ -173,7 +173,7 @@ public class StandardBDI implements IFollowService {
 	    this.goalMoney = goalMoney;
 	  }
 	  
-	  @GoalRecurCondition(beliefs="time")
+	  @GoalRecurCondition(beliefs="currentMoney")
 		public boolean checkRecur() {
 			// The buyer's job is done when all required units have been purchased
 			return currentMoney > goalMoney;
