@@ -74,6 +74,7 @@ public class Stock {
 	}
 
 	public void changePrice() {
+		System.out.println("Changing Price");
 		double variation = (randomNumber.nextDouble() * getPriceFluctuation() * isItPositiveFluctuation() / 100.0) + 1;
 		stockPrice = stockPrice * variation;
 	}
