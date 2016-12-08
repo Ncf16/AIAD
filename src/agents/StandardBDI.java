@@ -98,6 +98,12 @@ public class StandardBDI implements IFollowService {
 
 	@Belief
 	boolean goalAchieved = false;
+	
+	@Belief
+	private IComponentIdentifier tipBuyCompany;
+	
+	@Belief
+	private IComponentIdentifier tipSellCompany;
 
 	@Belief
 	private IComponentIdentifier identifier;
@@ -219,11 +225,11 @@ public class StandardBDI implements IFollowService {
 	// TODO: when an agent reaches a goal, kill him?
 
 	@Plan(trigger = @Trigger(goals = GetRich.class))
-	private class AgentPlan {
+	private class searchCompaniesPlan {
 		@PlanAPI
 		protected IPlan plan;
 
-		AgentPlan() {
+		searchCompaniesPlan() {
 
 		}
 
@@ -249,6 +255,57 @@ public class StandardBDI implements IFollowService {
 					System.out.println("Prompting a check");
 					counter++; // this will trigger a checkRecur in
 								// TIME_BETWEEN_PLANS milliseconds
+					return IFuture.DONE;
+				}
+			});
+			System.out.println("Current Money: " + currentMoney);
+			throw new PlanFailureException();
+			/************************************************************************************************/
+
+		}
+
+		@PlanPassed
+		public void passed() {
+			System.out.println("Plan finished successfully.");
+		}
+
+		@PlanAborted
+		public void aborted() {
+			System.out.println("Plan aborted.");
+		}
+
+		@PlanFailed
+		public void failed(Exception e) {
+			System.out.println("Plan failed: " + e);
+		}
+
+	}
+	
+	@Plan(trigger = @Trigger(factchangeds = "tipBuyCompany"))
+	private class analyzeFollowTipsPlan {
+		@PlanAPI
+		protected IPlan plan;
+
+		analyzeFollowTipsPlan() {
+
+		}
+
+		// Fornece Venda de Ações -> Agents
+		// Fornece Dados Ao broker
+
+		@PlanBody
+		public void plan(GetRich goal) {
+
+			
+			
+
+			// This block of code will trigger the check to see if the companySearchPlan needs to continue
+			/*********** TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN *****************/
+			execFeature.waitForDelay(TIME_BETWEEN_PLANS, new IComponentStep<Void>() {
+
+				public IFuture<Void> execute(IInternalAccess arg0) {
+					System.out.println("Prompting a check");
+					counter++; // this will trigger a checkRecur in TIME_BETWEEN_PLANS milliseconds
 					return IFuture.DONE;
 				}
 			});
