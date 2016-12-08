@@ -7,21 +7,17 @@ import company.CompanyBDI;
 import company.Stock;
 import jadex.bridge.IComponentIdentifier;
 
-public class Purchase extends CloneObject{
-	private Stock stockBought;
+public class Purchase extends CloneObject {
 	private IComponentIdentifier buyer;
 	private double sotckPurchasePrice;
-	private double stockSalePrice;
 	private int numberOfStocks;
 	private long dateOfPurchase;
-	private IComponentIdentifier company;
 	/**
 	 * Pretty much if a purchase is still valid, we need this to keep track of
 	 * everything happening (The question is, are agents will be independent
 	 * threads so, how to keep track of everything, an Agent notifies the
 	 * company it made the sale?
 	 */
-	private boolean sold = false;
 
 	/**
 	 * Comparator Between purchases
@@ -34,39 +30,6 @@ public class Purchase extends CloneObject{
 			return Long.compare(c1.getDateOfPurchase(), c2.getDateOfPurchase());
 		}
 	};
-
-	public boolean sellStock(StandardBDI seller) {
-
-		// TODO check if seller is buyer
-		if (!seller.equals(buyer))
-			return false;
-
-		stockSalePrice = stockBought.getStockPrice();
-		return (sold = true);
-
-	}
-
-	public double getSaleProfit() {
-		return stockSalePrice - sotckPurchasePrice;
-	}
-
-	// -----------------------------------------------
-	/**
-	 * Returns the Stock bought
-	 * 
-	 * @return
-	 */
-	public Stock getStockBought() {
-		return stockBought;
-	}
-
-	/**
-	 * Changes the stock that was bought in the purchasea
-	 * 
-	 */
-	public void setStockBought(Stock stockBought) {
-		this.stockBought = stockBought;
-	}
 
 	/**
 	 * 
@@ -82,22 +45,6 @@ public class Purchase extends CloneObject{
 	 */
 	public void setBuyer(IComponentIdentifier buyer) {
 		this.buyer = buyer;
-	}
-
-	/**
-	 * 
-	 * @return the value of the stock at the time it was sold
-	 */
-	public double getSotckSalePrice() {
-		return stockSalePrice;
-	}
-
-	/**
-	 * 
-	 * changes the price of the stock
-	 */
-	public void setSotckSalePrice(double sotckSalePrice) {
-		this.stockSalePrice = sotckSalePrice;
 	}
 
 	/**
@@ -148,18 +95,6 @@ public class Purchase extends CloneObject{
 		this.sotckPurchasePrice = sotckPurchasePrice;
 	}
 
-	public double getStockSalePrice() {
-		return stockSalePrice;
-	}
-
-	public void setStockSalePrice(double stockSalePrice) {
-		this.stockSalePrice = stockSalePrice;
-	}
-
-	public IComponentIdentifier getCompany() {
-		return company;
-	}
-
 	public static Comparator<Purchase> getComparator() {
 		return comparator;
 	}
@@ -167,9 +102,4 @@ public class Purchase extends CloneObject{
 	public static void setComparator(Comparator<Purchase> comparator) {
 		Purchase.comparator = comparator;
 	}
-
-	public void setCompany(IComponentIdentifier componentIdentifier) {
-		this.company = componentIdentifier;
-	}
-
 }
