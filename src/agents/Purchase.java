@@ -79,14 +79,6 @@ public class Purchase extends CloneObject {
 		this.dateOfPurchase = dateOfPurchase;
 	}
 
-	public boolean isSold() {
-		return sold;
-	}
-
-	public void setSold(boolean sold) {
-		this.sold = sold;
-	}
-
 	public double getSotckPurchasePrice() {
 		return sotckPurchasePrice;
 	}
