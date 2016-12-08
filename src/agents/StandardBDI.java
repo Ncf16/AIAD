@@ -53,7 +53,7 @@ import services.IFollowService;
 		@Argument(name = "name", clazz = String.class, defaultvalue = "A"),
 		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"),
 		@Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
-		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2"),
+		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2.0"),
 		@Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
@@ -98,10 +98,10 @@ public class StandardBDI implements IFollowService {
 
 	@Belief
 	boolean goalAchieved = false;
-	
+
 	@Belief
 	private IComponentIdentifier tipBuyCompany;
-	
+
 	@Belief
 	private IComponentIdentifier tipSellCompany;
 
@@ -280,7 +280,7 @@ public class StandardBDI implements IFollowService {
 		}
 
 	}
-	
+
 	@Plan(trigger = @Trigger(factchangeds = "tipBuyCompany"))
 	private class analyzeFollowTipsPlan {
 		@PlanAPI
@@ -296,16 +296,17 @@ public class StandardBDI implements IFollowService {
 		@PlanBody
 		public void plan() {
 
-			
-			
-
-			// This block of code will trigger the check to see if the companySearchPlan needs to continue
-			/*********** TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN *****************/
+			// This block of code will trigger the check to see if the
+			// companySearchPlan needs to continue
+			/***********
+			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
+			 *****************/
 			execFeature.waitForDelay(TIME_BETWEEN_PLANS, new IComponentStep<Void>() {
 
 				public IFuture<Void> execute(IInternalAccess arg0) {
 					System.out.println("Prompting a check");
-					counter++; // this will trigger a checkRecur in TIME_BETWEEN_PLANS milliseconds
+					counter++; // this will trigger a checkRecur in
+								// TIME_BETWEEN_PLANS milliseconds
 					return IFuture.DONE;
 				}
 			});
