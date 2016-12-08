@@ -18,13 +18,14 @@ public class InformationBroker {
 	private static InformationBroker instance = null;
 
 	// Deprecated
-	//public HashMap<IComponentIdentifier, Double> companyRates = new HashMap<IComponentIdentifier, Double>();
+	// public HashMap<IComponentIdentifier, Double> companyRates = new
+	// HashMap<IComponentIdentifier, Double>();
 
 	public List<IComponentIdentifier> agents = new ArrayList<IComponentIdentifier>();
 
 	public List<Pair<String, Integer>> companyRates = new ArrayList<Pair<String, Integer>>();
 
-	public List<Pair<IComponentIdentifier, Double>> stockPricesAbsDiff = new ArrayList<Pair<IComponentIdentifier, Double>>() {
+	public List<Pair<IComponentIdentifier, Double>> stockPricesGrowth = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
 		 * 
 		 */
@@ -32,7 +33,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
+			Collections.sort(stockPricesGrowth, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
 				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
 					return 0 - o1.getValue().compareTo(o2.getValue());
@@ -50,7 +51,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
+			Collections.sort(stockPricesStandardDeviation, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
 				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
 					return 0 - o1.getValue().compareTo(o2.getValue());
@@ -68,7 +69,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesAbsDiff, new Comparator<Pair<IComponentIdentifier, Double>>() {
+			Collections.sort(stockPrices, new Comparator<Pair<IComponentIdentifier, Double>>() {
 				@Override
 				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
 					return 0 - o1.getValue().compareTo(o2.getValue());
@@ -88,20 +89,18 @@ public class InformationBroker {
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
 		/*
-		System.out.print("Stock price: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPrices)
-			System.out.println(p + " " + p.getKey().getLocalName());
-		System.out.println("");
-		System.out.print("Abs Diff: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPricesAbsDiff)
-			System.out.println(p + " " + p.getKey().getLocalName());
-		System.out.println("");
-		System.out.print("Stadr Dev: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPricesStandardDeviation)
-			System.out.println(p + " " + p.getKey().getLocalName());
-
-		System.out.println("End");
-		*/
+		 * System.out.print("Stock price: "); for (Pair<IComponentIdentifier,
+		 * Double> p : stockPrices) System.out.println(p + " " +
+		 * p.getKey().getLocalName()); System.out.println("");
+		 * System.out.print("Abs Diff: "); for (Pair<IComponentIdentifier,
+		 * Double> p : stockPricesAbsDiff) System.out.println(p + " " +
+		 * p.getKey().getLocalName()); System.out.println("");
+		 * System.out.print("Stadr Dev: "); for (Pair<IComponentIdentifier,
+		 * Double> p : stockPricesStandardDeviation) System.out.println(p + " "
+		 * + p.getKey().getLocalName());
+		 * 
+		 * System.out.println("End");
+		 */
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
@@ -112,14 +111,18 @@ public class InformationBroker {
 	}
 
 	public synchronized void fillAbsDifference(IComponentIdentifier company, ArrayList<Double> list) {
-		double absDiff;
-		if (list.size() > MORE_THAN_X_ELEM) {
-			absDiff = Math.abs(list.get(list.size() - 1) - list.get(0));
-		} else
-			absDiff = 0.0;
 
-		if (!replaceStockListPair(company, stockPricesAbsDiff, absDiff))
-			stockPricesAbsDiff.add(new Pair<IComponentIdentifier, Double>(company, absDiff));
+		if (!list.isEmpty()) {
+			double growthRate;
+
+			if (list.size() > MORE_THAN_X_ELEM) {
+				growthRate = Math.abs(list.get(list.size() - 1) / list.get(0));
+			} else
+				growthRate = list.get(0);
+
+			if (!replaceStockListPair(company, stockPricesGrowth, growthRate))
+				stockPricesGrowth.add(new Pair<IComponentIdentifier, Double>(company, growthRate));
+		}
 
 	}
 
@@ -130,18 +133,52 @@ public class InformationBroker {
 		}
 	}
 
-	private synchronized boolean replaceStockListPair(IComponentIdentifier company,
-			List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
-
-		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
-			Pair<IComponentIdentifier, Double> a = iter.next();
-			if (a.getKey().equals(company)) {
-				a.setValue(newValue);
-				return true;
-			}
+	private synchronized boolean replaceStockListPair(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
+		Pair<IComponentIdentifier, Double> pair;
+		if ((pair = getPairLinear(company, list)) != null) {
+			pair.setValue(newValue);
 		}
+
 		return false;
 
+	}
+
+	public Pair<IComponentIdentifier, Double> getPairLinear(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list) {
+		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
+			Pair<IComponentIdentifier, Double> pair = iter.next();
+			if (pair.getKey().equals(company)) {
+				return pair;
+			}
+		}
+		return null;
+	}
+
+	public Pair<IComponentIdentifier, Double> getPairBinary(IComponentIdentifier company, Double value, List<Pair<IComponentIdentifier, Double>> list) {
+
+		int low = 0;
+		int high = list.size() - 1;
+
+		while (high >= low) {
+			int middle = (low + high) / 2;
+			Pair<IComponentIdentifier, Double> pair = list.get(middle);
+			double keyValue = pair.getValue();
+			if (keyValue == value) {
+				return linearSearch(list, value, company, middle);
+			}
+			if (keyValue < value) {
+				low = middle + 1;
+			}
+			if (keyValue > value) {
+				high = middle - 1;
+			}
+		}
+		return null;
+
+	}
+
+	public Pair<IComponentIdentifier, Double> linearSearch(List<Pair<IComponentIdentifier, Double>> list, Double value, IComponentIdentifier company, int middle) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public static InformationBroker getInstance() {

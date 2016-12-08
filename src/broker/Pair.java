@@ -47,7 +47,7 @@ public class Pair<L, R> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Pair other = (Pair) obj;
+		Pair<?, ?> other = (Pair<?, ?>) obj;
 		if (key == null) {
 			if (other.key != null)
 				return false;
