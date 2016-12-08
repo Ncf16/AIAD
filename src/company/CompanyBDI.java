@@ -87,7 +87,7 @@ public class CompanyBDI extends BaseAgent {
 					@Override
 					public IFuture<Void> execute(IInternalAccess arg0) {
 						companyStock.changePrice();
-						System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
+						//System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
 						broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
 										internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
 						return IFuture.DONE;
@@ -124,17 +124,17 @@ public class CompanyBDI extends BaseAgent {
 
 		@PlanPassed
 		public void passed() {
-			System.out.println("Plan finished successfully.");
+			System.out.println("Company Plan finished successfully.");
 		}
 
 		@PlanAborted
 		public void aborted() {
-			System.out.println("Plan aborted.");
+			System.out.println("Company Plan aborted.");
 		}
 
 		@PlanFailed
 		public void failed(Exception e) {
-			System.out.println("Plan failed: " + e);
+			System.out.println("Company Plan failed: " + e);
 		}
 
 	}
