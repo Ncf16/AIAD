@@ -294,7 +294,7 @@ public class StandardBDI implements IFollowService {
 		// Fornece Dados Ao broker
 
 		@PlanBody
-		public void plan(GetRich goal) {
+		public void plan() {
 
 			
 			
