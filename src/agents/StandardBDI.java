@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -49,12 +50,10 @@ import services.IFollowService;
 // Multi archetypal agent: can follow different plans along it's life: greedy, cautious, etc.
 
 @Agent
-@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class),
-		@Argument(name = "name", clazz = String.class, defaultvalue = "A"),
-		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"),
-		@Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
-		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2.0"),
-		@Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25") })
+@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class), @Argument(name = "name", clazz = String.class, defaultvalue = "A"),
+		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"), @Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
+		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2.0"), @Argument(name = "lowerBoundOfSalesInterval", clazz = Double.class, defaultvalue = "0.75"),
+		@Argument(name = "upperBoundOfSalesInterval", clazz = Double.class, defaultvalue = "1.25"), @Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
 public class StandardBDI implements IFollowService {
@@ -81,6 +80,14 @@ public class StandardBDI implements IFollowService {
 	private Double maxMoneySpentOnPurchase;
 
 	@Belief
+	@AgentArgument
+	protected Double upperBoundOfSalesInterval;
+
+	@Belief
+	@AgentArgument
+	protected Double lowerBoundOfSalesInterval;
+
+	@Belief
 	protected Double currentMoney;
 
 	@Belief(updaterate = 1000)
@@ -92,9 +99,6 @@ public class StandardBDI implements IFollowService {
 
 	@Belief
 	int maxFollowed;
-
-	@Belief
-	int maxStockPriceToBuy;
 
 	@Belief
 	boolean goalAchieved = false;
@@ -115,7 +119,7 @@ public class StandardBDI implements IFollowService {
 	private List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
 
 	// TODO change to Hashmap
-	private ArrayList<Pair<IComponentIdentifier, Purchase>> purchases;
+	private ArrayList<Pair<IComponentIdentifier, Purchase>> purchases = new ArrayList<Pair<IComponentIdentifier, Purchase>>();
 
 	private InformationBroker broker;
 
@@ -132,18 +136,21 @@ public class StandardBDI implements IFollowService {
 	IExecutionFeature execFeature;
 
 	@Agent
-	protected IInternalAccess bdi;
+	protected IInternalAccess internalAccess;
 
 	@AgentCreated
 	public void init() {
 
 		broker = InformationBroker.getInstance();
-		Map<String, Object> arguments = bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
+		Map<String, Object> arguments = internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 
 		platform = (IExternalAccess) arguments.get("platform");
 		name = (String) arguments.get("name");
-
-		identifier = bdi.getComponentIdentifier();
+		maxMoneySpentOnPurchase = (Double) arguments.get("maxMoneySpentOnPurchase");
+		maxRisk = (Double) arguments.get("maxRisk");
+		upperBoundOfSalesInterval = (Double) arguments.get("upperBoundOfSalesInterval");
+		lowerBoundOfSalesInterval = (Double) arguments.get("lowerBoundOfSalesInterval");
+		identifier = internalAccess.getComponentIdentifier();
 		currentMoney = startingMoney;
 		achieveGoal = new GetRich(goalMoney);
 
@@ -151,8 +158,7 @@ public class StandardBDI implements IFollowService {
 
 	@AgentBody
 	public void executeBody() {
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,
-				IComponentManagementService.class);
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
 		IComponentManagementService cms = fut.get();
 
 		// System.out.println("I am: " + identifier + " and I have " +
@@ -209,8 +215,7 @@ public class StandardBDI implements IFollowService {
 		 */
 		@GoalRecurCondition(beliefs = "counter")
 		public boolean checkRecur() {
-			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney
-					+ " Condition: " + (currentMoney < goalMoney));
+			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney + " Condition: " + (currentMoney < goalMoney));
 			System.out.println();
 
 			// Returns if goal isnt achieved/should repeat
@@ -244,6 +249,7 @@ public class StandardBDI implements IFollowService {
 			if (currentMoney < 1000)
 				currentMoney += 10;
 
+			createStockList();
 			// This block of code will trigger the check to see if the plan
 			// needs to be repeated
 			/***********
@@ -259,8 +265,7 @@ public class StandardBDI implements IFollowService {
 				}
 			});
 			System.out.println("Current Money: " + currentMoney);
-			throw new PlanFailureException();
-			/************************************************************************************************/
+			throw new PlanFailureException();/************************************************************************************************/
 
 		}
 
@@ -311,8 +316,7 @@ public class StandardBDI implements IFollowService {
 				}
 			});
 			System.out.println("Current Money: " + currentMoney);
-			throw new PlanFailureException();
-			/************************************************************************************************/
+			throw new PlanFailureException();/************************************************************************************************/
 
 		}
 
@@ -334,28 +338,56 @@ public class StandardBDI implements IFollowService {
 	}
 
 	public synchronized void createStockList() {
+		System.out.println("In StockList");
 		ArrayList<Pair<IComponentIdentifier, Purchase>> possiblePurchases = new ArrayList<Pair<IComponentIdentifier, Purchase>>();
 		double maxSpendMoney = currentMoney * maxMoneySpentOnPurchase;
-		List<Pair<IComponentIdentifier, Double>> stdrList = broker.stockPricesStandardDeviation;
+		List<Pair<IComponentIdentifier, Double>> stdrList;
 
-		//
-		for (Iterator<Pair<IComponentIdentifier, Double>> iter = stdrList.listIterator(); iter.hasNext();) {
-			Pair<IComponentIdentifier, Double> companyStdrDev = iter.next();
-			if (calculateCompanyRisk(companyStdrDev.getValue()) <= maxRisk) {
-				possiblePurchases
-						.add(new Pair<IComponentIdentifier, Purchase>(companyStdrDev.getKey(), new Purchase()));
+		if ((stdrList = broker.stockPricesStandardDeviation) != null && !stdrList.isEmpty()) {
+
+			for (ListIterator<Pair<IComponentIdentifier, Double>> iter = stdrList.listIterator(stdrList.size()); iter.hasPrevious();) {
+
+				Pair<IComponentIdentifier, Double> companyStdrDev = iter.previous();
+
+				if (companyStdrDev != null && calculateCompanyRisk(companyStdrDev.getValue()) <= maxRisk && notInPurchases(companyStdrDev.getKey())) {
+
+					Pair<IComponentIdentifier, Double> pair = broker.getPair(companyStdrDev.getKey(), broker.stockPrices);
+					possiblePurchases.add(new Pair<IComponentIdentifier, Purchase>(companyStdrDev.getKey(), new Purchase(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier())));
+				} else
+					break;
 			}
+			pickBestStock(possiblePurchases);
+			System.out.println("Size of Companies: " + purchases.size());
+			System.out.println("Size of Possible Companies: " + possiblePurchases.size());
 		}
+	}
 
+	public boolean notInPurchases(IComponentIdentifier key) {
+
+		for (Pair<IComponentIdentifier, Purchase> p : purchases) {
+			if (p.getKey().equals(key))
+				return false;
+		}
+		return true;
 	}
 
 	public void sellStock(IComponentIdentifier company) {
 
-		int index = 0;
-		int numberOfStocks = 1;
 		Purchase p = null;
-		currentMoney += broker.stockPrices.get(index).getValue() * numberOfStocks;
-		purchases.remove(p);
+		if (purchases != null && !purchases.isEmpty()) {
+
+			for (ListIterator<Pair<IComponentIdentifier, Purchase>> iter = purchases.listIterator(); iter.hasNext();) {
+				Pair<IComponentIdentifier, Purchase> pair = iter.next();
+				if (pair.getKey().equals(company)) {
+					p = pair.getValue();
+					iter.remove();
+					break;
+				}
+			}
+			Pair<IComponentIdentifier, Double> stockCurrentPrice = broker.getPair(company, broker.stockPrices);
+			if (stockCurrentPrice != null)
+				currentMoney += stockCurrentPrice.getValue() * p.getNumberOfStocks();
+		}
 	}
 
 	private Double calculateCompanyRisk(Double value) {
@@ -363,7 +395,13 @@ public class StandardBDI implements IFollowService {
 		return value;
 	}
 
-	public void pickBestStock() {
+	/**
+	 * Picks Best Stock To Buy ATM
+	 * 
+	 * @param possiblePurchases
+	 */
+
+	public void pickBestStock(ArrayList<Pair<IComponentIdentifier, Purchase>> possiblePurchases) {
 
 	}
 

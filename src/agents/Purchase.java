@@ -9,15 +9,30 @@ import jadex.bridge.IComponentIdentifier;
 
 public class Purchase extends CloneObject {
 	private IComponentIdentifier buyer;
-	private double sotckPurchasePrice;
+	private double stockPurchasePrice;
 	private int numberOfStocks;
 	private long dateOfPurchase;
+
 	/**
 	 * Pretty much if a purchase is still valid, we need this to keep track of
 	 * everything happening (The question is, are agents will be independent
 	 * threads so, how to keep track of everything, an Agent notifies the
 	 * company it made the sale?
 	 */
+
+	public Purchase(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer) {
+		this.buyer = buyer;
+		this.stockPurchasePrice = stockPrice;
+		Double temp = (maxSpendingMoney / stockPrice);
+		this.numberOfStocks = temp.intValue();
+		// System.out.println("Purcahse INFO: " + this.numberOfStocks + " " +
+		// temp + " Price: " + stockPrice + " Max Spending Money: " +
+		// maxSpendingMoney);
+
+	}
+
+	public Purchase() {
+	}
 
 	/**
 	 * Comparator Between purchases
@@ -79,12 +94,12 @@ public class Purchase extends CloneObject {
 		this.dateOfPurchase = dateOfPurchase;
 	}
 
-	public double getSotckPurchasePrice() {
-		return sotckPurchasePrice;
+	public double getStockPurchasePrice() {
+		return stockPurchasePrice;
 	}
 
-	public void setSotckPurchasePrice(double sotckPurchasePrice) {
-		this.sotckPurchasePrice = sotckPurchasePrice;
+	public void setStockPurchasePrice(double stockPurchasePrice) {
+		this.stockPurchasePrice = stockPurchasePrice;
 	}
 
 	public static Comparator<Purchase> getComparator() {
@@ -94,4 +109,27 @@ public class Purchase extends CloneObject {
 	public static void setComparator(Comparator<Purchase> comparator) {
 		Purchase.comparator = comparator;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((buyer == null) ? 0 : buyer.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (getClass() != obj.getClass())
+			return false;
+		Purchase other = (Purchase) obj;
+		if (buyer == null) {
+			if (other.buyer != null)
+				return false;
+		} else if (!buyer.equals(other.buyer))
+			return false;
+
+		return true;
+	}
+
 }
