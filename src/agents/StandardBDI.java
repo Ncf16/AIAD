@@ -395,23 +395,23 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	private List<String> followedAgentsCID = new ArrayList<String>();
 
-	public boolean sellStock(Purchase stockPurchase) {
-		// TODO check if it will do as we want that it if it starts with one and
-		// the command next will not skip
-		// maybe put next in the end of cycle
-		Iterator<Purchase> it = stocksBought.iterator();
-		while (it.hasNext()) {
-			Purchase p = it.next();
-			if (p.equals(stockPurchase)) {
-				if (p.sellStock(this)) {
-					p.getSaleProfit();
-					return true;
-				} else
-					return false;
-			}
-		}
-		return false;
-	}
+	// public boolean sellStock(Purchase stockPurchase) {
+	// // TODO check if it will do as we want that it if it starts with one and
+	// // the command next will not skip
+	// // maybe put next in the end of cycle
+	// Iterator<Purchase> it = stocksBought.iterator();
+	// while (it.hasNext()) {
+	// Purchase p = it.next();
+	// if (p.equals(stockPurchase)) {
+	// if (p.sellStock(this)) {
+	// p.getSaleProfit();
+	// return true;
+	// } else
+	// return false;
+	// }
+	// }
+	// return false;
+	// }
 
 	// -------------------------------------------
 
