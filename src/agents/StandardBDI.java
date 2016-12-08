@@ -299,7 +299,7 @@ public class StandardBDI implements IFollowService {
 		// Fornece Dados Ao broker
 
 		@PlanBody
-		public void plan(GetRich goal) {
+		public void plan() {
 
 			// This block of code will trigger the check to see if the
 			// companySearchPlan needs to continue
