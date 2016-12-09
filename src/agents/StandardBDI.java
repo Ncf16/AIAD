@@ -268,10 +268,11 @@ public class StandardBDI implements IFollowService {
 				currentMoney += 10;
 
 			// buyStock(pickBestStock());
+			// sellStocks();
 			// This block of code will trigger the check to see if the plan
 			// needs to be repeated
-			if (debug)
-				updateAgentsToFollow();
+			//if (debug)
+				//updateAgentsToFollow();
 
 			/***********
 			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
