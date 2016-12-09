@@ -48,20 +48,18 @@ public class Main {
 		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney", "debug" }, new Object[] { platform, "A1", 300.0, 10000.0, true }));
 		ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 		IComponentIdentifier cid = tupleFut.getFirstResult();
-		broker.registerAgent(cid);
+		
 
 		
 //		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" , "startingMoney", "goalMoney", "debug"}, new Object[] { platform, "A2", 400.0, 450.0, true}));
 //		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 //		cid = tupleFut.getFirstResult();
-//		broker.registerAgent(cid);
-//		
-//				
-//		
+
+
 //		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney" }, new Object[] { platform, "A3", 500.0, 600.0}));
 //		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 //		cid = tupleFut.getFirstResult();
-//		broker.registerAgent(cid);
+
 		
 		
 		  ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" }, new Object[] { "APPLE", 5.0, StockType.NORMAL }));

@@ -174,7 +174,8 @@ public class StandardBDI implements IFollowService {
 		Map<String, Object> arguments = internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
 		cms = fut.get();
-
+		identifier = internalAccess.getComponentIdentifier();
+		broker.registerAgent(identifier);
 		// TODO o bdi já não existe?
 		// Map<String, Object> arguments =
 		// bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
@@ -185,18 +186,30 @@ public class StandardBDI implements IFollowService {
 		maxRisk = (Double) arguments.get("maxRisk");
 		upperBoundOfSalesInterval = (Double) arguments.get("upperBoundOfSalesInterval");
 		lowerBoundOfSalesInterval = (Double) arguments.get("lowerBoundOfSalesInterval");
-		identifier = internalAccess.getComponentIdentifier();
+		
 		currentMoney = startingMoney;
 		currentStockMoney = 0.0;
 
 		scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
+				
+				updateStockMoney();
+				Double successRatio = (currentMoney + currentStockMoney)/startingMoney;
+				updateRatioBroker();
+				
 				System.out.println("HUIIIAISFDSIAFIDSFIDSFIDSFIDS");
 			}
 		}, START_TASK_AFTER, REPEAT_TASK_AFTER, TimeUnit.MILLISECONDS);
 		
 	}
+	
+	void updateRatioBroker(){
+		
+		
+		
+	}
+	
 
 	@AgentBody
 	public void executeBody() {
