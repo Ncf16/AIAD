@@ -7,10 +7,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 import company.Stock;
 import jadex.bridge.IComponentIdentifier;
+import jadex.bridge.IExternalAccess;
+import jadex.bridge.service.search.SServiceProvider;
 //import javafx.util.Pair;
+import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.future.IFuture;
 
 public class InformationBroker {
 
@@ -18,13 +23,46 @@ public class InformationBroker {
 
 	private static InformationBroker instance = null;
 
+	private IExternalAccess platform;
+
+	private IComponentManagementService cms;
+
 	// Deprecated
 	// public HashMap<IComponentIdentifier, Double> companyRates = new
 	// HashMap<IComponentIdentifier, Double>();
+	// public HashMap<IComponentIdentifier, Double> companyRates = new
+	// HashMap<IComponentIdentifier,
+	// Double>();
 
-	public List<IComponentIdentifier> agents = new ArrayList<IComponentIdentifier>();
+	private InformationBroker() {
 
-	public List<Pair<String, Integer>> companyRates = new ArrayList<Pair<String, Integer>>();
+	}
+
+	public void initBrokerServiceInfo(IExternalAccess platform) {
+		this.platform = platform;
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
+		cms = fut.get();
+	}
+
+	public List<Pair<IComponentIdentifier, Double>> agentsRegistered = new ArrayList<Pair<IComponentIdentifier, Double>>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public boolean add(Pair<IComponentIdentifier, Double> mt) {
+			super.add(mt);
+			Collections.sort(agentsRegistered, new Comparator<Pair<IComponentIdentifier, Double>>() {
+				@Override
+				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
+					return 0 - o1.getValue().compareTo(o2.getValue());
+				}
+			});
+			System.out.println(agentsRegistered);
+			return true;
+		}
+
+	};;
 
 	public List<Pair<IComponentIdentifier, Double>> stockPricesGrowth = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
@@ -80,8 +118,20 @@ public class InformationBroker {
 		}
 	};
 
-	private InformationBroker() {
-
+	public Boolean registerAgent(IComponentIdentifier agent) {
+		if (agentsRegistered.contains(agent) || agent == null) {
+			return false;
+		} else {
+			Random random = new Random();
+			Double testValue = (random.nextDouble() + 1) * 10; // Test value,
+																// randomly
+																// between 10
+																// and 20
+			Pair<IComponentIdentifier, Double> pair = new Pair(agent, testValue);
+			agentsRegistered.add(pair);
+			System.out.println("Added agent: " + agent + " with value: " + testValue + " to the Information Broker ");
+			return true;
+		}
 	}
 
 	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock) {
