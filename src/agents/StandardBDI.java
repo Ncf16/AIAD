@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import broker.InformationBroker;
 import broker.Pair;
@@ -61,6 +64,9 @@ import services.IFollowService;
 public class StandardBDI implements IFollowService {
 
 	private static long TIME_BETWEEN_PLANS = 1000;
+	
+	private static long START_TASK_AFTER = 1000;
+	private static long REPEAT_TASK_AFTER  = 1000;
 
 	@AgentArgument
 	IExternalAccess platform;
@@ -160,6 +166,7 @@ public class StandardBDI implements IFollowService {
 
 	protected IComponentManagementService cms;
 
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	@AgentCreated
 	public void init() {
 
@@ -182,6 +189,13 @@ public class StandardBDI implements IFollowService {
 		currentMoney = startingMoney;
 		currentStockMoney = 0.0;
 
+		scheduler.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("HUIIIAISFDSIAFIDSFIDSFIDSFIDS");
+			}
+		}, START_TASK_AFTER, REPEAT_TASK_AFTER, TimeUnit.MILLISECONDS);
+		
 	}
 
 	@AgentBody
@@ -247,12 +261,12 @@ public class StandardBDI implements IFollowService {
 	// TODO: when an agent reaches a goal, kill him?
 
 	@Plan(trigger = @Trigger(goals = GetRich.class))
-	private class searchCompaniesPlan {
+	private class InvestPlan {
 		@PlanAPI
 		protected IPlan plan;
 
-		searchCompaniesPlan() {
-
+		InvestPlan() {
+			 
 		}
 
 		// Fornece Venda de Ações -> Agents
@@ -264,11 +278,11 @@ public class StandardBDI implements IFollowService {
 			System.out.println("Plan started.");
 
 			// Money varies, stuff happens here, yada yada
-			if (currentMoney < 1000)
-				currentMoney += 10;
+			// if (currentMoney < 1000)
+			// currentMoney += 10;
 
 			buyStock(pickBestStock());
-			//sellStocks();
+			// sellStocks();
 			// This block of code will trigger the check to see if the plan
 			// needs to be repeated
 			// if (debug)
@@ -292,8 +306,6 @@ public class StandardBDI implements IFollowService {
 			/************************************************************************************************/
 
 		}
-
-		
 
 		private void updateAgentsToFollow() {
 			// Let's choose the best 3 agents to follow
@@ -449,37 +461,26 @@ public class StandardBDI implements IFollowService {
 	}
 
 	/*
-	@Plan(trigger = @Trigger(factchangeds = "time"))
-	private class rewardForFollowersPlan {
-		@PlanAPI
-		protected IPlan plan;
-
-		rewardForFollowersPlan() {
-
-		}
-
-		@PlanBody
-		public void plan(GetRich goal) {
-
-		}
-
-		@PlanPassed
-		public void passed() {
-			System.out.println("Plan finished successfully.");
-		}
-
-		@PlanAborted
-		public void aborted() {
-			System.out.println("Plan aborted.");
-		}
-
-		@PlanFailed
-		public void failed(Exception e) {
-			System.out.println("Plan failed: " + e);
-		}
-
-	}
-	*/
+	 * @Plan(trigger = @Trigger(factchangeds = "time")) private class rewardForFollowersPlan {
+	 * 
+	 * @PlanAPI protected IPlan plan;
+	 * 
+	 * rewardForFollowersPlan() {
+	 * 
+	 * }
+	 * 
+	 * @PlanBody public void plan(GetRich goal) {
+	 * 
+	 * }
+	 * 
+	 * @PlanPassed public void passed() { System.out.println("Plan finished successfully."); }
+	 * 
+	 * @PlanAborted public void aborted() { System.out.println("Plan aborted."); }
+	 * 
+	 * @PlanFailed public void failed(Exception e) { System.out.println("Plan failed: " + e); }
+	 * 
+	 * }
+	 */
 
 	public synchronized List<Pair<IComponentIdentifier, StockHolding>> createStockList() {
 
@@ -491,17 +492,24 @@ public class StandardBDI implements IFollowService {
 			for (ListIterator<Pair<IComponentIdentifier, Double>> iter = stdrList.listIterator(stdrList.size()); iter.hasPrevious();) {
 				Pair<IComponentIdentifier, Double> companyStdrDev = iter.previous();
 
-				if (companyStdrDev != null && calculateCompanyRisk(companyStdrDev.getValue()) <= maxRisk && notInPurchases(companyStdrDev.getKey())) {
+				if (companyStdrDev != null && notInPurchases(companyStdrDev.getKey())) {
+
+					if (calculateCompanyRisk(companyStdrDev.getValue()) > maxRisk) {
+						break;
+					}
 
 					Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(companyStdrDev.getKey(), broker.stockPrices);
 					possiblePurchases
 							.add(new Pair<IComponentIdentifier, StockHolding>(companyStdrDev.getKey(), new StockHolding(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier())));
-				} else
-					break;
-				// System.out.println("Size of Companies: " + purchases.size());
-				// System.out.println("Size of Possible Companies: " + possiblePurchases.size());
+				} else {
+					System.out.println("Max Risk: " + maxRisk);
+					System.out.println("Risk: " + companyStdrDev.getValue());
+					System.out.println("Company: " + companyStdrDev.getKey() + " notInPurchases is: " + notInPurchases(companyStdrDev.getKey()));
+				}
 			}
 		}
+		System.out.println("Has stock of X Companies: " + purchases.size());
+		System.out.println("Can buy from Y Companies: " + possiblePurchases.size());
 		return possiblePurchases;
 	}
 
@@ -524,7 +532,7 @@ public class StandardBDI implements IFollowService {
 			updateStockMoney();
 		}
 	}
-	
+
 	public synchronized IFuture<Boolean> sellStocks() {
 		if (purchases != null && !purchases.isEmpty()) {
 			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext();) {
@@ -551,27 +559,32 @@ public class StandardBDI implements IFollowService {
 			return IFuture.FALSE;
 	}
 
-	private void updateStockMoney(){
+	private void updateStockMoney() {
+
+		Double money = 0.0;
 		List<Pair<IComponentIdentifier, Double>> currentStockPrices = broker.stockPrices;
-		
-		for(ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext(); ){
+
+		for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext();) {
 			Pair<IComponentIdentifier, StockHolding> agentPair = iter.next();
 			IComponentIdentifier companyToUpdate = agentPair.getKey();
-			
-			for(ListIterator<Pair<IComponentIdentifier, Double>> iter2 = currentStockPrices.listIterator(); iter2.hasNext();){
+
+			for (ListIterator<Pair<IComponentIdentifier, Double>> iter2 = currentStockPrices.listIterator(); iter2.hasNext();) {
 				Pair<IComponentIdentifier, Double> companyPair = iter2.next();
-				if(companyToUpdate.equals(companyPair.getKey())){
+				if (companyToUpdate.equals(companyPair.getKey())) {
 					StockHolding stockHolding = agentPair.getValue();
 					stockHolding.setCurrentStockPrice(companyPair.getValue());
+					money += stockHolding.getCurrentStockPrice() * stockHolding.getNumberOfStocks();
 				}
 			}
 		}
+		currentStockMoney = money;
 		System.out.println("After updating stock values.");
-		
+
 		System.out.println(purchases);
-		
+		System.out.println("Stock money: " + currentStockMoney);
+
 	}
-	
+
 	private Double calculateCompanyRisk(Double value) {
 		return value;
 	}
@@ -611,7 +624,7 @@ public class StandardBDI implements IFollowService {
 		double stdr_dev = broker.getPairLinear(key, broker.stockPricesStandardDeviation).getValue();
 		double growth = broker.getPairLinear(key, broker.stockPricesGrowth).getValue();
 
-		//System.out.println("RANK: " + growth / stdr_dev);
+		// System.out.println("RANK: " + growth / stdr_dev);
 		return growth / stdr_dev;
 	}
 
