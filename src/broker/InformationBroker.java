@@ -52,12 +52,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(agentsRegistered, new Comparator<Pair<IComponentIdentifier, Double>>() {
-				@Override
-				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
-					return 0 - o1.getValue().compareTo(o2.getValue());
-				}
-			});
+			sortCompanyList(agentsRegistered);
 			System.out.println(agentsRegistered);
 			return true;
 		}
@@ -72,12 +67,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesGrowth, new Comparator<Pair<IComponentIdentifier, Double>>() {
-				@Override
-				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
-					return 0 - o1.getValue().compareTo(o2.getValue());
-				}
-			});
+			sortCompanyList(stockPricesGrowth);
 			return true;
 		}
 	};
@@ -90,14 +80,10 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPricesStandardDeviation, new Comparator<Pair<IComponentIdentifier, Double>>() {
-				@Override
-				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
-					return 0 - o1.getValue().compareTo(o2.getValue());
-				}
-			});
+			sortCompanyList(stockPricesStandardDeviation);
 			return true;
 		}
+
 	};
 
 	public List<Pair<IComponentIdentifier, Double>> stockPrices = new ArrayList<Pair<IComponentIdentifier, Double>>() {
@@ -108,15 +94,19 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			Collections.sort(stockPrices, new Comparator<Pair<IComponentIdentifier, Double>>() {
-				@Override
-				public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
-					return 0 - o1.getValue().compareTo(o2.getValue());
-				}
-			});
+			sortCompanyList(stockPrices);
 			return true;
 		}
 	};
+
+	public void sortCompanyList(List<Pair<IComponentIdentifier, Double>> list) {
+		Collections.sort(list, new Comparator<Pair<IComponentIdentifier, Double>>() {
+			@Override
+			public int compare(Pair<IComponentIdentifier, Double> o1, Pair<IComponentIdentifier, Double> o2) {
+				return 0 - o1.getValue().compareTo(o2.getValue());
+			}
+		});
+	}
 
 	public Boolean registerAgent(IComponentIdentifier agent) {
 		if (agentsRegistered.contains(agent) || agent == null) {
@@ -135,37 +125,41 @@ public class InformationBroker {
 	}
 
 	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock) {
+		fillStockPrices(companyStock.getKey(), companyStock.getValue());
 		fillStandardDeviation(companyStock.getKey(), companyStock.getValue());
 		fillGrowth(companyStock.getKey(), companyStock.getValue());
-		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
-		// System.out.print("Stock price: ");
+		// System.out.println("After Stock price: ");
 		// for (Pair<IComponentIdentifier, Double> p : stockPrices)
 		// System.out.println(p + " " + p.getKey().getLocalName());
 		// System.out.println("");
-		// System.out.print("Abs Diff: ");
+		// System.out.println("Growth");
 		// for (Pair<IComponentIdentifier, Double> p : stockPricesGrowth)
 		// System.out.println(p + " " + p.getKey().getLocalName());
 		// System.out.println("");
-		// System.out.print("Stadr Dev: ");
+		// System.out.println("Stadr Dev: ");
 		// for (Pair<IComponentIdentifier, Double> p :
 		// stockPricesStandardDeviation)
 		// System.out.println(p + " " + p.getKey().getLocalName());
 		//
-		// System.out.println("End");
+		// System.out.println("End\n");
 
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
 		double stdrDev = Statistics.instance().getStdDev(list);
 
-		if (!replaceStockListPair(company, stockPricesStandardDeviation, stdrDev))
-			stockPricesStandardDeviation.add(new Pair<IComponentIdentifier, Double>(company, stdrDev));
+		if (list != null && !list.isEmpty()) {
+			if (!replaceStockListPair(company, stockPricesStandardDeviation, stdrDev))
+				stockPricesStandardDeviation.add(new Pair<IComponentIdentifier, Double>(company, stdrDev));
+
+			sortCompanyList(stockPricesStandardDeviation);
+		}
 	}
 
 	public synchronized void fillGrowth(IComponentIdentifier company, ArrayList<Double> list) {
 
-		if (!list.isEmpty()) {
+		if (list != null && !list.isEmpty()) {
 			double growthRate;
 
 			if (list.size() > MORE_THAN_X_ELEM) {
@@ -176,14 +170,15 @@ public class InformationBroker {
 			if (!replaceStockListPair(company, stockPricesGrowth, growthRate))
 				stockPricesGrowth.add(new Pair<IComponentIdentifier, Double>(company, growthRate));
 		}
-
+		sortCompanyList(stockPricesGrowth);
 	}
 
-	public synchronized void fillstockPrices(IComponentIdentifier company, ArrayList<Double> list) {
-		if (!list.isEmpty()) {
+	public synchronized void fillStockPrices(IComponentIdentifier company, ArrayList<Double> list) {
+		if (list != null && !list.isEmpty()) {
 			if (!replaceStockListPair(company, stockPrices, list.get(list.size() - 1)))
 				stockPrices.add(new Pair<IComponentIdentifier, Double>(company, list.get(list.size() - 1)));
 		}
+		sortCompanyList(stockPrices);
 	}
 
 	private synchronized boolean replaceStockListPair(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list, Double newValue) {

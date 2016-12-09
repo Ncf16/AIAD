@@ -32,8 +32,7 @@ import jadex.micro.annotation.Argument;
 import jadex.micro.annotation.Arguments;;
 
 @Agent
-@Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "companyName"),
-		@Argument(name = "stockPrice", clazz = Double.class, defaultvalue = "5.0"),
+@Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "companyName"), @Argument(name = "stockPrice", clazz = Double.class, defaultvalue = "5.0"),
 		@Argument(name = "stockType", clazz = StockType.class, defaultvalue = "1") })
 public class CompanyBDI extends BaseAgent {
 
@@ -45,17 +44,17 @@ public class CompanyBDI extends BaseAgent {
 
 	@AgentArgument
 	private String companyName;
-	
+
 	@Belief
 	private IComponentIdentifier identifier;
-	
+
 	@Belief
 	private InformationBroker broker = InformationBroker.getInstance();
 
 	/** The bdi agent. */
 	@AgentFeature
 	protected IBDIAgentFeature bdiFeature;
-	
+
 	@Agent
 	private IInternalAccess bdi;
 
@@ -69,31 +68,25 @@ public class CompanyBDI extends BaseAgent {
 	public void init() {
 		identifier = bdi.getComponentIdentifier();
 		this.bdiFeature.adoptPlan(new CompanyPlan());
-		this.companyName = (String) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments()
-				.get("companyName");
-		this.companyStock = new Stock(
-				(double) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments()
-						.get("stockPrice"),
-				(StockType) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments()
-						.get("stockType"));
+		this.companyName = (String) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("companyName");
+		this.companyStock = new Stock((double) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockPrice"),
+				(StockType) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockType"));
 	}
 
 	@AgentBody
 	public void body() {
-		execFeature.repeatStep(START_OF_STOCK_PRICE_UPDATES, TIME_BETWEEN_STOCK_PRICE_UPDATE,
-				new IComponentStep<Void>() {
-					@Override
-					public IFuture<Void> execute(IInternalAccess arg0) {
-						companyStock.changePrice();
-						System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
-						broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(
-										internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
-						
-						// HERE
-						
-						return IFuture.DONE;
-					}
-				});
+		execFeature.repeatStep(START_OF_STOCK_PRICE_UPDATES, TIME_BETWEEN_STOCK_PRICE_UPDATE, new IComponentStep<Void>() {
+			@Override
+			public IFuture<Void> execute(IInternalAccess arg0) {
+				companyStock.changePrice();
+				//System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
+				broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
+
+				// HERE
+
+				return IFuture.DONE;
+			}
+		});
 	}
 
 	public boolean endCompany() {
