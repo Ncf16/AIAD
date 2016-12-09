@@ -6,19 +6,20 @@ import jadex.bridge.IComponentIdentifier;
 public class StockHolding extends CloneObject {
 	private IComponentIdentifier buyer;
 	private double stockPurchasePrice;
+	private double currentStockPrice;
 	private int numberOfStocks;
 	private long dateOfPurchase;
 
 	/**
-	 * Pretty much if a purchase is still valid, we need this to keep track of
-	 * everything happening (The question is, are agents will be independent
-	 * threads so, how to keep track of everything, an Agent notifies the
-	 * company it made the sale?
+	 * Pretty much if a purchase is still valid, we need this to keep track of everything happening
+	 * (The question is, are agents will be independent threads so, how to keep track of everything,
+	 * an Agent notifies the company it made the sale?
 	 */
 
 	public StockHolding(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer) {
 		this.buyer = buyer;
 		this.stockPurchasePrice = stockPrice;
+		this.currentStockPrice = stockPrice;
 		Double temp = (maxSpendingMoney / stockPrice);
 		this.numberOfStocks = temp.intValue();
 		// System.out.println("Purcahse INFO: " + this.numberOfStocks + " " +
@@ -28,6 +29,12 @@ public class StockHolding extends CloneObject {
 	}
 
 	public StockHolding() {
+	}
+
+	@Override
+	public String toString() {
+		return "StockHolding [buyer=" + buyer + ", stockPurchasePrice=" + stockPurchasePrice + ", currentStockPrice=" + currentStockPrice + ", numberOfStocks=" + numberOfStocks + ", dateOfPurchase="
+				+ dateOfPurchase + "]";
 	}
 
 	/**
@@ -126,6 +133,14 @@ public class StockHolding extends CloneObject {
 			return false;
 
 		return true;
+	}
+
+	public double getCurrentStockPrice() {
+		return currentStockPrice;
+	}
+
+	public void setCurrentStockPrice(double currentStockPrice) {
+		this.currentStockPrice = currentStockPrice;
 	}
 
 }

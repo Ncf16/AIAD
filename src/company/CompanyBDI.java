@@ -37,7 +37,7 @@ import jadex.micro.annotation.Arguments;;
 public class CompanyBDI extends BaseAgent {
 
 	private static final int START_OF_STOCK_PRICE_UPDATES = 0;
-	private static final int TIME_BETWEEN_STOCK_PRICE_UPDATE = 5000;
+	private static final int TIME_BETWEEN_STOCK_PRICE_UPDATE = 1000;
 
 	@AgentArgument
 	private Stock companyStock = new Stock();
@@ -67,7 +67,6 @@ public class CompanyBDI extends BaseAgent {
 	@AgentCreated
 	public void init() {
 		identifier = bdi.getComponentIdentifier();
-		this.bdiFeature.adoptPlan(new CompanyPlan());
 		this.companyName = (String) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("companyName");
 		this.companyStock = new Stock((double) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockPrice"),
 				(StockType) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockType"));
@@ -79,11 +78,11 @@ public class CompanyBDI extends BaseAgent {
 			@Override
 			public IFuture<Void> execute(IInternalAccess arg0) {
 				companyStock.changePrice();
-				//System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
+				System.out.println("Price is : " + companyStock.getStockPrice() + " | " + identifier);
 				broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
 
-				// HERE
-
+				
+				
 				return IFuture.DONE;
 			}
 		});
@@ -97,41 +96,6 @@ public class CompanyBDI extends BaseAgent {
 		companyStock = new Stock(price);
 	}
 
-	@Plan
-	private class CompanyPlan {
-		@PlanAPI
-		protected IPlan plan;
-
-		CompanyPlan() {
-
-		}
-
-		// Fornece Venda de Ações -> Agents
-		// Fornece Dados Ao broker
-		@PlanBody
-		public void plan() {
-			System.out.println("Plan started.");
-			plan.waitFor(10000).get();
-			System.out.println("Plan resumed.");
-
-		}
-
-		@PlanPassed
-		public void passed() {
-			System.out.println("Company Plan finished successfully.");
-		}
-
-		@PlanAborted
-		public void aborted() {
-			System.out.println("Company Plan aborted.");
-		}
-
-		@PlanFailed
-		public void failed(Exception e) {
-			System.out.println("Company Plan failed: " + e);
-		}
-
-	}
 
 	/**
 	 * Called each time the Company update it's StockPrice
