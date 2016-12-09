@@ -31,7 +31,9 @@ import jadex.bridge.component.IArgumentsResultsFeature;
 import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.future.Future;
 import jadex.commons.future.IFuture;
+import jadex.commons.future.IResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentArgument;
 import jadex.micro.annotation.AgentBody;
@@ -49,12 +51,10 @@ import services.IFollowService;
 // Multi archetypal agent: can follow different plans along it's life: greedy, cautious, etc.
 
 @Agent
-@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class),
-		@Argument(name = "name", clazz = String.class, defaultvalue = "A"),
-		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"),
-		@Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
-		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2.0"),
-		@Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25") })
+@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class), @Argument(name = "name", clazz = String.class, defaultvalue = "A"),
+		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"), @Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
+		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"), @Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "2.0"),
+		@Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25"), @Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "15.0") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
 public class StandardBDI implements IFollowService {
@@ -81,7 +81,18 @@ public class StandardBDI implements IFollowService {
 	private Double maxMoneySpentOnPurchase;
 
 	@Belief
+	@AgentArgument
+	private Double minAgentPerformance;
+
+	@Belief
+	@AgentArgument
+	private Boolean debug;
+
+	@Belief
 	protected Double currentMoney;
+
+	@Belief
+	protected Double currentStockMoney;
 
 	@Belief(updaterate = 1000)
 	protected long time = System.currentTimeMillis();
@@ -91,7 +102,7 @@ public class StandardBDI implements IFollowService {
 	private Double goalMoney; // Is this supposed to be a belief?
 
 	@Belief
-	int maxFollowed;
+	int maxFollowed = 3; // TODO: change value
 
 	@Belief
 	int maxStockPriceToBuy;
@@ -103,24 +114,23 @@ public class StandardBDI implements IFollowService {
 	private IComponentIdentifier tipBuyCompany;
 
 	@Belief
+	private Pair<IComponentIdentifier, Boolean> tipReceived;
+
+	@Belief
 	private IComponentIdentifier tipSellCompany;
 
 	@Belief
 	private IComponentIdentifier identifier;
 
 	@Belief
-	private List<IComponentIdentifier> followed = new ArrayList<IComponentIdentifier>();
+	public List<IComponentIdentifier> followed = new ArrayList<IComponentIdentifier>();
 
 	@Belief
-	private List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
+	public List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
 
-	// TODO change to Hashmap
 	private ArrayList<Pair<IComponentIdentifier, Purchase>> purchases;
 
 	private InformationBroker broker;
-
-	@Belief
-	private GetRich achieveGoal;
 
 	@Belief
 	private int counter = 0;
@@ -134,10 +144,15 @@ public class StandardBDI implements IFollowService {
 	@Agent
 	protected IInternalAccess bdi;
 
+	protected IComponentManagementService cms;
+
 	@AgentCreated
 	public void init() {
 
 		broker = InformationBroker.getInstance();
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
+		cms = fut.get();
+		
 		Map<String, Object> arguments = bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 
 		platform = (IExternalAccess) arguments.get("platform");
@@ -145,15 +160,14 @@ public class StandardBDI implements IFollowService {
 
 		identifier = bdi.getComponentIdentifier();
 		currentMoney = startingMoney;
-		achieveGoal = new GetRich(goalMoney);
+		currentStockMoney = 0.0;
 
 	}
 
 	@AgentBody
 	public void executeBody() {
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,
-				IComponentManagementService.class);
-		IComponentManagementService cms = fut.get();
+		System.out.println("Debug activated = " + debug);
+		
 
 		// System.out.println("I am: " + identifier + " and I have " +
 		// currentMoney + "$");
@@ -169,26 +183,9 @@ public class StandardBDI implements IFollowService {
 		IFuture<IExternalAccess> futExt = cms.getExternalAccess(identifier);
 		IExternalAccess extAcc = futExt.get();
 
-		bdiFeature.dispatchTopLevelGoal(new GetRich(goalMoney));
-
-		/*
-		 * IFuture<IFollowService> fut1 = SServiceProvider.getService(extAcc,
-		 * IFollowService.class); fut1.addResultListener(new
-		 * IResultListener<IFollowService>() {
-		 * 
-		 * @Override public void resultAvailable(IFollowService arg0) {
-		 * //System.out.println("I am : " + name +
-		 * " and my companion's name is: " + arg0.gimmeYourStringNOW() +
-		 * " and I have: " + currentMoney + "$");
-		 * 
-		 * }
-		 * 
-		 * @Override public void exceptionOccurred(Exception arg0) { // TODO
-		 * Auto-generated method stub
-		 * 
-		 * } });
-		 */
-
+		if((currentMoney < goalMoney) || currentMoney == 0){  // No sense in starting a goal you had already met or that you will never accomplish
+			bdiFeature.dispatchTopLevelGoal(new GetRich(goalMoney));
+		}
 	}
 
 	@Goal(recur = true)
@@ -209,11 +206,13 @@ public class StandardBDI implements IFollowService {
 		 */
 		@GoalRecurCondition(beliefs = "counter")
 		public boolean checkRecur() {
-			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney
-					+ " Condition: " + (currentMoney < goalMoney));
+			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney + " Condition: " + (currentMoney < goalMoney));
 			System.out.println();
 
 			// Returns if goal isnt achieved/should repeat
+			if (currentMoney == 0 && currentStockMoney == 0)
+				return false; // Don't repeat goal
+
 			return !(goalAchieved = currentMoney >= goalMoney);
 
 		}
@@ -241,78 +240,155 @@ public class StandardBDI implements IFollowService {
 
 			System.out.println("Plan started.");
 
+			// Money varies, stuff happens here, yada yada
 			if (currentMoney < 1000)
 				currentMoney += 10;
 
-			// This block of code will trigger the check to see if the plan
-			// needs to be repeated
+			if (debug)
+				updateAgentsToFollow();
+
 			/***********
 			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
 			 *****************/
 			execFeature.waitForDelay(TIME_BETWEEN_PLANS, new IComponentStep<Void>() {
 
 				public IFuture<Void> execute(IInternalAccess arg0) {
-					System.out.println("Prompting a check");
 					counter++; // this will trigger a checkRecur in
 								// TIME_BETWEEN_PLANS milliseconds
 					return IFuture.DONE;
 				}
 			});
+
 			System.out.println("Current Money: " + currentMoney);
+
 			throw new PlanFailureException();
 			/************************************************************************************************/
 
 		}
 
-		@PlanPassed
-		public void passed() {
-			System.out.println("Plan finished successfully.");
-		}
+		private void updateAgentsToFollow() {
+			// Let's choose the best 3 agents to follow
+			List<Pair<IComponentIdentifier, Double>> agentsRegistered = broker.agentsRegistered;
 
-		@PlanAborted
-		public void aborted() {
-			System.out.println("Plan aborted.");
-		}
+			// Add every single one as followed just to test
 
-		@PlanFailed
-		public void failed(Exception e) {
-			System.out.println("Plan failed: " + e);
-		}
+			// if (followed.size() == 0) {
+			// for (int i = 0; i < agentsRegistered.size(); i++) {
+			// IComponentIdentifier agentToAdd = agentsRegistered.get(i).getKey();
+			// if (!agentsRegistered.get(i).getKey().equals(identifier)) {
+			// followed.add(agentToAdd);
+			//
+			// IFuture<IExternalAccess> futExt = cms.getExternalAccess(agentToAdd);
+			// IExternalAccess extAcc = futExt.get();
+			//
+			// IFuture<IFollowService> futService = SServiceProvider.getService(extAcc,
+			// IFollowService.class);
+			// futService.addResultListener(new IResultListener<IFollowService>() {
+			//
+			// @Override
+			// public void resultAvailable(IFollowService followedService) {
+			// followedService.startedBeingFollowed(identifier);
+			//
+			// }
+			//
+			// @Override
+			// public void exceptionOccurred(Exception arg0) {
+			//
+			// }
+			// });
+			// }
+			//
+			// }
+			// }
 
-	}
+			System.out.println("I am: " + identifier + " and my current followers are: " + followers);
+			System.out.println("I am: " + identifier + " and I am following: " + followed);
 
-	@Plan(trigger = @Trigger(factchangeds = "tipBuyCompany"))
-	private class analyzeFollowTipsPlan {
-		@PlanAPI
-		protected IPlan plan;
+			// Discard Agents that have been unsuccessful
+			// discardUnsuccessful(agentsRegistered);
 
-		analyzeFollowTipsPlan() {
+			// Can still follow some more
+			if (followed.size() < maxFollowed) {
 
-		}
+				int canStillFollow = maxFollowed - followed.size();
 
-		// Fornece Venda de Ações -> Agents
-		// Fornece Dados Ao broker
+				// Get the best ranked, until it is following the max number he can (maxFollowed)
+				for (int i = 0; i < broker.agentsRegistered.size() && i < canStillFollow; i++) {
+					Pair<IComponentIdentifier, Double> agentToAnalyze = broker.agentsRegistered.get(i);
 
-		@PlanBody
-		public void plan() {
+					// Will start following the Top Performing agents (they are already sorted), with the following conditions: 
+					// (1) agent has at least minimum performance, (2) isn't already following  (3) isn't himself
+					if (agentToAnalyze.getValue() >= minAgentPerformance 
+							&& !followed.contains(agentToAnalyze.getKey()) && !agentToAnalyze.getKey().equals(identifier)) {
 
-			// This block of code will trigger the check to see if the
-			// companySearchPlan needs to continue
-			/***********
-			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
-			 *****************/
-			execFeature.waitForDelay(TIME_BETWEEN_PLANS, new IComponentStep<Void>() {
+						followed.add(agentToAnalyze.getKey());
 
-				public IFuture<Void> execute(IInternalAccess arg0) {
-					System.out.println("Prompting a check");
-					counter++; // this will trigger a checkRecur in
-								// TIME_BETWEEN_PLANS milliseconds
-					return IFuture.DONE;
+						IFuture<IExternalAccess> futExt = cms.getExternalAccess(agentToAnalyze.getKey());
+						IExternalAccess extAcc = futExt.get();
+
+						IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
+						futService.addResultListener(new IResultListener<IFollowService>() {
+
+							@Override
+							public void resultAvailable(IFollowService followedService) {
+								followedService.startedBeingFollowed(identifier);
+
+							}
+
+							@Override
+							public void exceptionOccurred(Exception arg0) {
+
+							}
+						});
+
+					}
 				}
-			});
-			System.out.println("Current Money: " + currentMoney);
-			throw new PlanFailureException();
-			/************************************************************************************************/
+			}
+
+		}
+
+		public void discardUnsuccessful(List<Pair<IComponentIdentifier, Double>> agentsRegistered) {
+
+			System.out.println("Analyzing agents to discard. Currently following: " + followed);
+
+			for (int i = 0; i < followed.size(); i++) {
+				System.out.println("hi");
+				IComponentIdentifier followedAgent = followed.get(i);
+
+				Double agentPerformance = broker.getPair(followedAgent, agentsRegistered).getValue();
+
+				System.out.println("Agent performance is: " + agentPerformance + " and min performance is: " + minAgentPerformance);
+				if (agentPerformance < minAgentPerformance) {
+
+					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
+
+					/**************************************************************
+					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE *
+					 **************************************************************/
+
+					IFuture<IExternalAccess> futExt = cms.getExternalAccess(followedAgent);
+					IExternalAccess extAcc = futExt.get();
+
+					IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
+					futService.addResultListener(new IResultListener<IFollowService>() {
+
+						@Override
+						public void resultAvailable(IFollowService followedService) {
+							followedService.stoppedBeingFollowed(identifier);
+
+						}
+
+						@Override
+						public void exceptionOccurred(Exception arg0) {
+
+						}
+					});
+
+					followed.remove(followed.get(i));
+
+				}
+
+			}
 
 		}
 
@@ -342,8 +418,7 @@ public class StandardBDI implements IFollowService {
 		for (Iterator<Pair<IComponentIdentifier, Double>> iter = stdrList.listIterator(); iter.hasNext();) {
 			Pair<IComponentIdentifier, Double> companyStdrDev = iter.next();
 			if (calculateCompanyRisk(companyStdrDev.getValue()) <= maxRisk) {
-				possiblePurchases
-						.add(new Pair<IComponentIdentifier, Purchase>(companyStdrDev.getKey(), new Purchase()));
+				possiblePurchases.add(new Pair<IComponentIdentifier, Purchase>(companyStdrDev.getKey(), new Purchase()));
 			}
 		}
 
@@ -387,8 +462,7 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	private PriorityQueue<Purchase> stocksBought;
 	/**
-	 * Companies the Agent already trusts ( assumimos que ele ja tem algum
-	 * conhecimento de antes)
+	 * Companies the Agent already trusts ( assumimos que ele ja tem algum conhecimento de antes)
 	 */
 	@Belief
 	private Set<String> trustedCompanies = new HashSet<String>();
@@ -418,8 +492,7 @@ public class StandardBDI implements IFollowService {
 
 	/**
 	 * 
-	 * @return a priority queue of stocks that have been sold by the agent
-	 *         ordered by Date
+	 * @return a priority queue of stocks that have been sold by the agent ordered by Date
 	 */
 	public PriorityQueue<Purchase> getStocksSold() {
 		return stocksSold;
@@ -436,8 +509,7 @@ public class StandardBDI implements IFollowService {
 
 	/**
 	 * 
-	 * @return a priority queue of stocks that have been bought by the agent
-	 *         ordered by Date
+	 * @return a priority queue of stocks that have been bought by the agent ordered by Date
 	 */
 	@Belief
 	public PriorityQueue<Purchase> getStocksBought() {
@@ -479,23 +551,51 @@ public class StandardBDI implements IFollowService {
 		return null;
 	}
 
+	@Override
+	public IFuture<Boolean> sellStocks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IFuture<Boolean> startedBeingFollowed(IComponentIdentifier follower) {
+
+		if (followers.contains(follower)) {
+			System.out.println(identifier + " not successful added " + follower + " to his followers, already was there.");
+			return new Future<Boolean>(false);
+		} else {
+			System.out.println(identifier + " successfuly started being followed by: " + follower);
+			followers.add(follower);
+			return new Future<Boolean>(true);
+		}
+	}
+
+	@Override
+	public IFuture<Boolean> stoppedBeingFollowed(IComponentIdentifier follower) {
+		if (followers.contains(follower)) {
+			System.out.println(identifier + " successfuly stopped being followed by: " + follower);
+			followers.remove(follower);
+			return new Future<Boolean>(true);
+		} else {
+			System.out.println(identifier + " not successful removed " + follower + " from his followers, already wasn't there.");
+			return new Future<Boolean>(false);
+		}
+	}
+
 	/*
-	 * public void test() { System.out.println("Own CID: " +
-	 * bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: "
-	 * + "companion's Name: "); }
+	 * public void test() { System.out.println("Own CID: " + bdi.getComponentIdentifier() +
+	 * ", Own name: " + name + ", companionCID: " + "companion's Name: "); }
 	 * 
-	 * // Test functions public void fillCompanions() { for (int i = 0; i <
-	 * broker.agents.size(); i++) { IComponentIdentifier cid =
-	 * broker.agents.get(i); if (!cid.equals(identifier)){
+	 * // Test functions public void fillCompanions() { for (int i = 0; i < broker.agents.size();
+	 * i++) { IComponentIdentifier cid = broker.agents.get(i); if (!cid.equals(identifier)){
 	 * companionCIDs.add(cid); } }
 	 * 
 	 * }
 	 * 
 	 * // Test functions public void getSingleCompanion() { for (int i = 0; i <
-	 * broker.agents.size(); i++) { IComponentIdentifier cid =
-	 * broker.agents.get(i); if (!cid.equals(identifier)) { companion = cid;
-	 * break; } } System.out.println("I am: " + identifier +
-	 * ", Single Companion: " + companion); }
+	 * broker.agents.size(); i++) { IComponentIdentifier cid = broker.agents.get(i); if
+	 * (!cid.equals(identifier)) { companion = cid; break; } } System.out.println("I am: " +
+	 * identifier + ", Single Companion: " + companion); }
 	 * 
 	 */
 
