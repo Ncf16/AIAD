@@ -2,11 +2,9 @@ package agents;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
 
 import broker.InformationBroker;
@@ -79,6 +77,8 @@ public class StandardBDI implements IFollowService {
 	@AgentArgument
 	private Double maxRisk;
 
+	// TODO: minRisk
+
 	@Belief
 	@AgentArgument
 	private Double maxMoneySpentOnPurchase;
@@ -90,7 +90,7 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	@AgentArgument
 	protected Double lowerBoundOfSalesInterval;
-	// TODO é uma Belief certo?
+
 	@Belief
 	@AgentArgument
 	private Double minAgentPerformance;
@@ -186,8 +186,7 @@ public class StandardBDI implements IFollowService {
 
 	@AgentBody
 	public void executeBody() {
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
-		IComponentManagementService cms = fut.get();
+
 		System.out.println("Debug activated = " + debug);
 
 		// System.out.println("I am: " + identifier + " and I have " +
@@ -199,10 +198,6 @@ public class StandardBDI implements IFollowService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// Service call
-		IFuture<IExternalAccess> futExt = cms.getExternalAccess(identifier);
-		IExternalAccess extAcc = futExt.get();
 
 		if ((currentMoney < goalMoney) || currentMoney == 0) {
 			// No sense in
@@ -237,7 +232,7 @@ public class StandardBDI implements IFollowService {
 			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney + " Condition: " + (currentMoney < goalMoney));
 			System.out.println();
 
-			// Returns if goal isnt achieved/should repeat
+			// Returns whether the goal is achieved or not
 			if (currentMoney == 0 && currentStockMoney == 0)
 				return false; // Don't repeat goal
 
@@ -291,7 +286,9 @@ public class StandardBDI implements IFollowService {
 			});
 
 			System.out.println("Current Money: " + currentMoney);
-			throw new PlanFailureException();/************************************************************************************************/
+			throw new PlanFailureException();
+
+			/************************************************************************************************/
 
 		}
 
@@ -349,6 +346,11 @@ public class StandardBDI implements IFollowService {
 			// discardUnsuccessful(agentsRegistered);
 
 			// Can still follow some more
+			followSuccessful();
+
+		}
+
+		public void followSuccessful() {
 			if (followed.size() < maxFollowed) {
 
 				int canStillFollow = maxFollowed - followed.size();
@@ -387,7 +389,6 @@ public class StandardBDI implements IFollowService {
 					}
 				}
 			}
-
 		}
 
 		public void discardUnsuccessful(List<Pair<IComponentIdentifier, Double>> agentsRegistered) {
@@ -406,8 +407,7 @@ public class StandardBDI implements IFollowService {
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
 
 					/**************************************************************
-					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
-					 * *
+					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE *
 					 **************************************************************/
 
 					IFuture<IExternalAccess> futExt = cms.getExternalAccess(followedAgent);
@@ -554,18 +554,12 @@ public class StandardBDI implements IFollowService {
 		return growth / stdr_dev;
 	}
 
-	@Override
-	public String gimmeYourStringNOW() {
-		return name;
-	}
-
 	/*
 	 * @AgentKilled public IFuture<Void> agentKilled() { return Void; }
 	 */
 
 	/**
-	 * Companies the Agent already trusts ( assumimos que ele ja tem algum
-	 * conhecimento de antes)
+	 * Companies the Agent already trusts ( assumimos que ele ja tem algum conhecimento de antes)
 	 */
 	@Belief
 	private Set<String> trustedCompanies = new HashSet<String>();
@@ -623,32 +617,27 @@ public class StandardBDI implements IFollowService {
 	}
 
 	/*
-	 * void test() { System.out.println("Own CID: " +
-	 * bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: "
-	 * + "companion's Name: "); } // Test functions public void fillCompanions()
-	 * { for (int i = 0; i < broker.agents.size(); i++) { IComponentIdentifier
-	 * cid = broker.agents.get(i); if (!cid.equals(identifier)){
-	 * companionCIDs.add(cid); } } } // Test functions public void
-	 * getSingleCompanion() { for (int i = 0; i < broker.agents.size(); i++) {
-	 * IComponentIdentifier cid = broker.agents.get(i); if
-	 * (!cid.equals(identifier)) { companion = cid; break; } }
-	 * System.out.println("I am: " + identifier + ", Single Companion: " +
-	 * companion); } ======= public void test() { System.out.println("Own CID: "
-	 * + bdi.getComponentIdentifier() + ", Own name: " + name +
-	 * ", companionCID: " + "companion's Name: "); }
+	 * void test() { System.out.println("Own CID: " + bdi.getComponentIdentifier() + ", Own name: "
+	 * + name + ", companionCID: " + "companion's Name: "); } // Test functions public void
+	 * fillCompanions() { for (int i = 0; i < broker.agents.size(); i++) { IComponentIdentifier cid
+	 * = broker.agents.get(i); if (!cid.equals(identifier)){ companionCIDs.add(cid); } } } // Test
+	 * functions public void getSingleCompanion() { for (int i = 0; i < broker.agents.size(); i++) {
+	 * IComponentIdentifier cid = broker.agents.get(i); if (!cid.equals(identifier)) { companion =
+	 * cid; break; } } System.out.println("I am: " + identifier + ", Single Companion: " +
+	 * companion); } ======= public void test() { System.out.println("Own CID: " +
+	 * bdi.getComponentIdentifier() + ", Own name: " + name + ", companionCID: " +
+	 * "companion's Name: "); }
 	 * 
-	 * // Test functions public void fillCompanions() { for (int i = 0; i <
-	 * broker.agents.size(); i++) { IComponentIdentifier cid =
-	 * broker.agents.get(i); if (!cid.equals(identifier)){
+	 * // Test functions public void fillCompanions() { for (int i = 0; i < broker.agents.size();
+	 * i++) { IComponentIdentifier cid = broker.agents.get(i); if (!cid.equals(identifier)){
 	 * companionCIDs.add(cid); } }
 	 * 
 	 * }
 	 * 
 	 * // Test functions public void getSingleCompanion() { for (int i = 0; i <
-	 * broker.agents.size(); i++) { IComponentIdentifier cid =
-	 * broker.agents.get(i); if (!cid.equals(identifier)) { companion = cid;
-	 * break; } } System.out.println("I am: " + identifier +
-	 * ", Single Companion: " + companion); }
+	 * broker.agents.size(); i++) { IComponentIdentifier cid = broker.agents.get(i); if
+	 * (!cid.equals(identifier)) { companion = cid; break; } } System.out.println("I am: " +
+	 * identifier + ", Single Companion: " + companion); }
 	 * 
 	 */
 
