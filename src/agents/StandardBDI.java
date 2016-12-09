@@ -141,7 +141,7 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	public List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
 
-	// TODO change to Hashmap
+	// TODO change to Hashmap?
 	private ArrayList<Pair<IComponentIdentifier, StockHolding>> purchases = new ArrayList<Pair<IComponentIdentifier, StockHolding>>();
 
 	private InformationBroker broker;
@@ -204,13 +204,14 @@ public class StandardBDI implements IFollowService {
 		IFuture<IExternalAccess> futExt = cms.getExternalAccess(identifier);
 		IExternalAccess extAcc = futExt.get();
 
-		if ((currentMoney < goalMoney) || currentMoney == 0) { // No sense in
-																// starting a
-																// goal you had
-																// already met
-																// or that you
-																// will never
-																// accomplish
+		if ((currentMoney < goalMoney) || currentMoney == 0) {
+			// No sense in
+			// starting a
+			// goal you had
+			// already met
+			// or that you
+			// will never
+			// accomplish
 			bdiFeature.dispatchTopLevelGoal(new GetRich(goalMoney));
 		}
 	}
@@ -295,7 +296,7 @@ public class StandardBDI implements IFollowService {
 		}
 
 		public void buyStock(Pair<IComponentIdentifier, StockHolding> bestStock) {
-			// TODO SELL STOCk
+			// TODO BUY STOCk
 			if (bestStock != null) {
 				bestStock.getValue().setDateOfPurchase(System.currentTimeMillis());
 				purchases.add(bestStock);
@@ -453,13 +454,17 @@ public class StandardBDI implements IFollowService {
 	}
 
 	public synchronized List<Pair<IComponentIdentifier, StockHolding>> createStockList() {
+
 		List<Pair<IComponentIdentifier, StockHolding>> possiblePurchases = new ArrayList<Pair<IComponentIdentifier, StockHolding>>();
 		double maxSpendMoney = currentMoney * maxMoneySpentOnPurchase;
 		List<Pair<IComponentIdentifier, Double>> stdrList;
+
 		if ((stdrList = broker.stockPricesStandardDeviation) != null && !stdrList.isEmpty()) {
 			for (ListIterator<Pair<IComponentIdentifier, Double>> iter = stdrList.listIterator(stdrList.size()); iter.hasPrevious();) {
 				Pair<IComponentIdentifier, Double> companyStdrDev = iter.previous();
+
 				if (companyStdrDev != null && calculateCompanyRisk(companyStdrDev.getValue()) <= maxRisk && notInPurchases(companyStdrDev.getKey())) {
+
 					Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(companyStdrDev.getKey(), broker.stockPrices);
 					possiblePurchases
 							.add(new Pair<IComponentIdentifier, StockHolding>(companyStdrDev.getKey(), new StockHolding(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier())));
@@ -496,7 +501,8 @@ public class StandardBDI implements IFollowService {
 				double ratio = stockValue / p.getStockPurchasePrice();
 
 				if (lowerBoundOfSalesInterval >= ratio && ratio <= upperBoundOfSalesInterval) {
-					sellStock(p.getNumberOfStocks(), stockValue);
+					// TODO sells the stock
+					currentMoney += stockValue * p.getNumberOfStocks();
 					iter.remove();
 				}
 			}
@@ -505,13 +511,7 @@ public class StandardBDI implements IFollowService {
 			return IFuture.FALSE;
 	}
 
-	public void sellStock(int nStocks, Double stockValue) {
-		// TODO sells the stock
-		currentMoney += stockValue * nStocks;
-	}
-
 	private Double calculateCompanyRisk(Double value) {
-
 		return value;
 	}
 
@@ -523,13 +523,13 @@ public class StandardBDI implements IFollowService {
 
 	// Company ID Purchase Details
 	public Pair<IComponentIdentifier, StockHolding> pickBestStock() {
-		System.out.println("Pick Best Stock");
+		// System.out.println("Pick Best Stock");
 		// Need to go through all the possible purchases and pick the best, so
 		// give them a score, check if higher than currentMax if not keep going
 		// if so replace currentMax
 		List<Pair<IComponentIdentifier, StockHolding>> possiblePurchases = createStockList();
-
 		Pair<IComponentIdentifier, StockHolding> currentMaxPair = null;
+
 		if (possiblePurchases != null && !possiblePurchases.isEmpty()) {
 			double currentMaxValue = -1;
 			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = possiblePurchases.listIterator(); iter.hasNext();) {
@@ -573,29 +573,7 @@ public class StandardBDI implements IFollowService {
 	@Belief
 	private List<String> followedAgentsCID = new ArrayList<String>();
 
-	// public boolean sellStock(Purchase stockPurchase) {
-	// // TODO check if it will do as we want that it if it starts with one and
-	// // the command next will not skip
-	// // maybe put next in the end of cycle
-	// Iterator<Purchase> it = stocksBought.iterator();
-	// while (it.hasNext()) {
-	// Purchase p = it.next();
-	// if (p.equals(stockPurchase)) {
-	// if (p.sellStock(this)) {
-	// p.getSaleProfit();
-	// return true;
-	// } else
-	// return false;
-	// }
-	// }
-	// return false;
-	// }
-
-	// -------------------------------------------
-
 	/**
-	 * 
-	 * 
 	 * @return The companies the agent trusts
 	 */
 	@Belief
