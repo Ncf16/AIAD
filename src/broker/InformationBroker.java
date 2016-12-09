@@ -127,7 +127,7 @@ public class InformationBroker {
 																// randomly
 																// between 10
 																// and 20
-			Pair<IComponentIdentifier, Double> pair = new Pair(agent, testValue);
+			Pair<IComponentIdentifier, Double> pair = new Pair<IComponentIdentifier, Double>(agent, testValue);
 			agentsRegistered.add(pair);
 			System.out.println("Added agent: " + agent + " with value: " + testValue + " to the Information Broker ");
 			return true;
@@ -136,22 +136,23 @@ public class InformationBroker {
 
 	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock) {
 		fillStandardDeviation(companyStock.getKey(), companyStock.getValue());
-		fillAbsDifference(companyStock.getKey(), companyStock.getValue());
+		fillGrowth(companyStock.getKey(), companyStock.getValue());
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
-		System.out.print("Stock price: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPrices)
-			System.out.println(p + " " + p.getKey().getLocalName());
-		System.out.println("");
-		System.out.print("Abs Diff: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPricesGrowth)
-			System.out.println(p + " " + p.getKey().getLocalName());
-		System.out.println("");
-		System.out.print("Stadr Dev: ");
-		for (Pair<IComponentIdentifier, Double> p : stockPricesStandardDeviation)
-			System.out.println(p + " " + p.getKey().getLocalName());
-
-		System.out.println("End");
+		// System.out.print("Stock price: ");
+		// for (Pair<IComponentIdentifier, Double> p : stockPrices)
+		// System.out.println(p + " " + p.getKey().getLocalName());
+		// System.out.println("");
+		// System.out.print("Abs Diff: ");
+		// for (Pair<IComponentIdentifier, Double> p : stockPricesGrowth)
+		// System.out.println(p + " " + p.getKey().getLocalName());
+		// System.out.println("");
+		// System.out.print("Stadr Dev: ");
+		// for (Pair<IComponentIdentifier, Double> p :
+		// stockPricesStandardDeviation)
+		// System.out.println(p + " " + p.getKey().getLocalName());
+		//
+		// System.out.println("End");
 
 	}
 
@@ -162,7 +163,7 @@ public class InformationBroker {
 			stockPricesStandardDeviation.add(new Pair<IComponentIdentifier, Double>(company, stdrDev));
 	}
 
-	public synchronized void fillAbsDifference(IComponentIdentifier company, ArrayList<Double> list) {
+	public synchronized void fillGrowth(IComponentIdentifier company, ArrayList<Double> list) {
 
 		if (!list.isEmpty()) {
 			double growthRate;
