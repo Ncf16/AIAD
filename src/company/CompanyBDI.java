@@ -29,9 +29,7 @@ import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentFeature;
 import jadex.micro.annotation.Argument;
-import jadex.micro.annotation.Arguments;
-import jadex.micro.annotation.ProvidedService;
-import jadex.micro.annotation.ProvidedServices;;
+import jadex.micro.annotation.Arguments;;
 
 @Agent
 @Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "companyName"),

@@ -127,7 +127,7 @@ public class InformationBroker {
 																// randomly
 																// between 10
 																// and 20
-			Pair<IComponentIdentifier, Double> pair = new Pair(agent, testValue);
+			Pair<IComponentIdentifier, Double> pair = new Pair<IComponentIdentifier, Double>(agent, testValue);
 			agentsRegistered.add(pair);
 			System.out.println("Added agent: " + agent + " with value: " + testValue + " to the Information Broker ");
 			return true;

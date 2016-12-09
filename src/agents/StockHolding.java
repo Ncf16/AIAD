@@ -1,10 +1,6 @@
 package agents;
 
 import java.util.Comparator;
-import java.util.Date;
-
-import company.CompanyBDI;
-import company.Stock;
 import jadex.bridge.IComponentIdentifier;
 
 public class StockHolding extends CloneObject {
