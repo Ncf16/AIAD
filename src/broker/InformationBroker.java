@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import company.Stock;
 import jadex.bridge.IComponentIdentifier;
@@ -88,19 +89,20 @@ public class InformationBroker {
 		fillAbsDifference(companyStock.getKey(), companyStock.getValue());
 		fillstockPrices(companyStock.getKey(), companyStock.getValue());
 
-		/*
-		 * System.out.print("Stock price: "); for (Pair<IComponentIdentifier,
-		 * Double> p : stockPrices) System.out.println(p + " " +
-		 * p.getKey().getLocalName()); System.out.println("");
-		 * System.out.print("Abs Diff: "); for (Pair<IComponentIdentifier,
-		 * Double> p : stockPricesAbsDiff) System.out.println(p + " " +
-		 * p.getKey().getLocalName()); System.out.println("");
-		 * System.out.print("Stadr Dev: "); for (Pair<IComponentIdentifier,
-		 * Double> p : stockPricesStandardDeviation) System.out.println(p + " "
-		 * + p.getKey().getLocalName());
-		 * 
-		 * System.out.println("End");
-		 */
+		System.out.print("Stock price: ");
+		for (Pair<IComponentIdentifier, Double> p : stockPrices)
+			System.out.println(p + " " + p.getKey().getLocalName());
+		System.out.println("");
+		System.out.print("Abs Diff: ");
+		for (Pair<IComponentIdentifier, Double> p : stockPricesGrowth)
+			System.out.println(p + " " + p.getKey().getLocalName());
+		System.out.println("");
+		System.out.print("Stadr Dev: ");
+		for (Pair<IComponentIdentifier, Double> p : stockPricesStandardDeviation)
+			System.out.println(p + " " + p.getKey().getLocalName());
+
+		System.out.println("End");
+
 	}
 
 	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
@@ -137,13 +139,14 @@ public class InformationBroker {
 		Pair<IComponentIdentifier, Double> pair;
 		if ((pair = getPairLinear(company, list)) != null) {
 			pair.setValue(newValue);
+			return true;
 		}
 
 		return false;
 
 	}
 
-	public Pair<IComponentIdentifier, Double> getPairLinear(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list) {
+	public synchronized Pair<IComponentIdentifier, Double> getPairLinear(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list) {
 		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
 			Pair<IComponentIdentifier, Double> pair = iter.next();
 			if (pair.getKey().equals(company)) {
@@ -153,7 +156,7 @@ public class InformationBroker {
 		return null;
 	}
 
-	public Pair<IComponentIdentifier, Double> getPairBinary(IComponentIdentifier company, Double value, List<Pair<IComponentIdentifier, Double>> list) {
+	public synchronized Pair<IComponentIdentifier, Double> getPairBinary(IComponentIdentifier company, Double value, List<Pair<IComponentIdentifier, Double>> list) {
 
 		int low = 0;
 		int high = list.size() - 1;
@@ -161,9 +164,14 @@ public class InformationBroker {
 		while (high >= low) {
 			int middle = (low + high) / 2;
 			Pair<IComponentIdentifier, Double> pair = list.get(middle);
+			System.out.println("Middle: " + middle);
 			double keyValue = pair.getValue();
+			System.out.println("keyValue: " + keyValue + "  value: " + value + "  " + pair.getKey().equals(company));
 			if (keyValue == value) {
-				return linearSearch(list, value, company, middle);
+				if (pair.getKey().equals(company))
+					return pair;
+				else
+					return linearSearch(list, value, company, middle);
 			}
 			if (keyValue < value) {
 				low = middle + 1;
@@ -176,8 +184,25 @@ public class InformationBroker {
 
 	}
 
-	public Pair<IComponentIdentifier, Double> linearSearch(List<Pair<IComponentIdentifier, Double>> list, Double value, IComponentIdentifier company, int middle) {
-		// TODO Auto-generated method stub
+	public synchronized Pair<IComponentIdentifier, Double> linearSearch(List<Pair<IComponentIdentifier, Double>> list, Double value, IComponentIdentifier company, int middle) {
+
+		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
+			Pair<IComponentIdentifier, Double> pair = iter.next();
+			if (pair.getValue() > value)
+				break;
+			if (pair.getKey().equals(company)) {
+				return pair;
+			}
+		}
+
+		for (ListIterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasPrevious();) {
+			Pair<IComponentIdentifier, Double> pair = iter.previous();
+			if (pair.getValue() < value)
+				return null;
+			if (pair.getKey().equals(company)) {
+				return pair;
+			}
+		}
 		return null;
 	}
 

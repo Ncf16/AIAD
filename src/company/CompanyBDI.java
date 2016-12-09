@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import agents.BaseAgent;
-import agents.Purchase;
+import agents.StockHolding;
 import broker.InformationBroker;
 import broker.Pair;
 import company.Stock.StockType;
@@ -62,7 +62,7 @@ public class CompanyBDI extends BaseAgent {
 	private IInternalAccess bdi;
 
 	// TODO ainda é relevante?
-	private PriorityQueue<Purchase> stocksSold = new PriorityQueue<>(Purchase.comparator);
+	private PriorityQueue<StockHolding> stocksSold = new PriorityQueue<>(StockHolding.comparator);
 
 	@AgentFeature
 	IExecutionFeature execFeature;

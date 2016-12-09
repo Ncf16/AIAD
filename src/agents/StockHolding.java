@@ -7,7 +7,7 @@ import company.CompanyBDI;
 import company.Stock;
 import jadex.bridge.IComponentIdentifier;
 
-public class Purchase extends CloneObject {
+public class StockHolding extends CloneObject {
 	private IComponentIdentifier buyer;
 	private double stockPurchasePrice;
 	private int numberOfStocks;
@@ -20,7 +20,7 @@ public class Purchase extends CloneObject {
 	 * company it made the sale?
 	 */
 
-	public Purchase(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer) {
+	public StockHolding(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer) {
 		this.buyer = buyer;
 		this.stockPurchasePrice = stockPrice;
 		Double temp = (maxSpendingMoney / stockPrice);
@@ -31,16 +31,16 @@ public class Purchase extends CloneObject {
 
 	}
 
-	public Purchase() {
+	public StockHolding() {
 	}
 
 	/**
 	 * Comparator Between purchases
 	 */
-	public static Comparator<Purchase> comparator = new Comparator<Purchase>() {
+	public static Comparator<StockHolding> comparator = new Comparator<StockHolding>() {
 		@Override
-		public int compare(Purchase c1, Purchase c2) {
-			if (c1 == null || c2 == null || !(c1 instanceof Purchase) || !(c2 instanceof Purchase))
+		public int compare(StockHolding c1, StockHolding c2) {
+			if (c1 == null || c2 == null || !(c1 instanceof StockHolding) || !(c2 instanceof StockHolding))
 				return -1;
 			return Long.compare(c1.getDateOfPurchase(), c2.getDateOfPurchase());
 		}
@@ -102,12 +102,12 @@ public class Purchase extends CloneObject {
 		this.stockPurchasePrice = stockPurchasePrice;
 	}
 
-	public static Comparator<Purchase> getComparator() {
+	public static Comparator<StockHolding> getComparator() {
 		return comparator;
 	}
 
-	public static void setComparator(Comparator<Purchase> comparator) {
-		Purchase.comparator = comparator;
+	public static void setComparator(Comparator<StockHolding> comparator) {
+		StockHolding.comparator = comparator;
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class Purchase extends CloneObject {
 	public boolean equals(Object obj) {
 		if (getClass() != obj.getClass())
 			return false;
-		Purchase other = (Purchase) obj;
+		StockHolding other = (StockHolding) obj;
 		if (buyer == null) {
 			if (other.buyer != null)
 				return false;
