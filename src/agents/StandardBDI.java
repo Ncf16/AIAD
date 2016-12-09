@@ -397,7 +397,7 @@ public class StandardBDI implements IFollowService {
 				System.out.println("hi");
 				IComponentIdentifier followedAgent = followed.get(i);
 
-				Double agentPerformance = broker.getPair(followedAgent, agentsRegistered).getValue();
+				Double agentPerformance = broker.getPairLinear(followedAgent, agentsRegistered).getValue();
 
 				System.out.println("Agent performance is: " + agentPerformance + " and min performance is: " + minAgentPerformance);
 				if (agentPerformance < minAgentPerformance) {
