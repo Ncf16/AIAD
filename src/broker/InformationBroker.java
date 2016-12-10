@@ -72,7 +72,7 @@ public class InformationBroker {
 		}
 	};
 
-	public List<Pair<IComponentIdentifier, Double>> stockPricesStandardDeviation = new ArrayList<Pair<IComponentIdentifier, Double>>() {
+	public List<Pair<IComponentIdentifier, Double>> stockPricesCoefVar = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
 		 * 
 		 */
@@ -80,7 +80,7 @@ public class InformationBroker {
 
 		public boolean add(Pair<IComponentIdentifier, Double> mt) {
 			super.add(mt);
-			sortListDecreasing(stockPricesStandardDeviation);
+			sortListDecreasing(stockPricesCoefVar);
 			return true;
 		}
 
@@ -133,12 +133,14 @@ public class InformationBroker {
 		}
 		sortListDecreasing(agentsRegistered);
 		
+		System.out.println("Agent list ordered: " + agentsRegistered);
+		
 		return true;
 	}
 
 	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock) {
 		fillStockPrices(companyStock.getKey(), companyStock.getValue());
-		fillStandardDeviation(companyStock.getKey(), companyStock.getValue());
+		fillCoefVar(companyStock.getKey(), companyStock.getValue());
 		fillGrowth(companyStock.getKey(), companyStock.getValue());
 
 		// System.out.println("After Stock price: ");
@@ -158,14 +160,14 @@ public class InformationBroker {
 
 	}
 
-	public synchronized void fillStandardDeviation(IComponentIdentifier company, ArrayList<Double> list) {
-		double stdrDev = Statistics.instance().getStdDev(list);
+	public synchronized void fillCoefVar(IComponentIdentifier company, ArrayList<Double> list) {
+		double coefVar = Statistics.instance().getVarCoef(list);
 
 		if (list != null && !list.isEmpty()) {
-			if (!replaceListPair(company, stockPricesStandardDeviation, stdrDev))
-				stockPricesStandardDeviation.add(new Pair<IComponentIdentifier, Double>(company, stdrDev));
+			if (!replaceListPair(company, stockPricesCoefVar, coefVar))
+				stockPricesCoefVar.add(new Pair<IComponentIdentifier, Double>(company, coefVar));
 
-			sortListDecreasing(stockPricesStandardDeviation);
+			sortListDecreasing(stockPricesCoefVar);
 		}
 	}
 

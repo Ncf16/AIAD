@@ -45,15 +45,15 @@ public class Main {
 		// VERY IMPORTANT, FOR BROKER TO BE ABLE TO CALL SERVICES OF AGENTS TO COMMUNICATE ON HIS PART TO RESPOND
 		broker.initBrokerServiceInfo(platform);
 		
-		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney", "debug" }, new Object[] { platform, "A1", 300.0, 10000.0, true }));
+		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney", "debug","maxMoneySpentOnPurchase" }, new Object[] { platform, "A1", 40000.0, 100000.0, true,0.1 }));
 		ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
 		IComponentIdentifier cid = tupleFut.getFirstResult();
 		
 
 		
-//		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" , "startingMoney", "goalMoney", "debug"}, new Object[] { platform, "A2", 400.0, 450.0, true}));
-//		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
-//		cid = tupleFut.getFirstResult();
+		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name" , "startingMoney", "goalMoney", "debug"}, new Object[] { platform, "A2", 50000.0, 52000.0, true}));
+		tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
+		cid = tupleFut.getFirstResult();
 
 
 //		ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney" }, new Object[] { platform, "A3", 500.0, 600.0}));

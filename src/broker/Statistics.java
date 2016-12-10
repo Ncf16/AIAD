@@ -24,16 +24,19 @@ public class Statistics {
 
 	}
 
-	double getVariance(ArrayList<Double> data) {
-		double mean = getMean(data);
+	double getVariance(ArrayList<Double> data, double mean) {
+
 		double temp = 0;
 		for (double a : data)
 			temp += (a - mean) * (a - mean);
 		return temp / data.size();
 	}
 
-	double getStdDev(ArrayList<Double> data) {
-		return Math.sqrt(getVariance(data));
+	double getVarCoef(ArrayList<Double> data) {
+		double mean = getMean(data);
+		double v = Math.sqrt(getVariance(data, mean)) / mean;
+		System.out.println("STDR_DEV: " + v);
+		return v;
 	}
 
 }
