@@ -34,9 +34,7 @@ public class Statistics {
 
 	double getVarCoef(ArrayList<Double> data) {
 		double mean = getMean(data);
-		double v = Math.sqrt(getVariance(data, mean)) / mean;
-		System.out.println("STDR_DEV: " + v);
-		return v;
+		return Math.sqrt(getVariance(data, mean)) / mean;
 	}
 
 }

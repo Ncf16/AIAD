@@ -304,7 +304,8 @@ public class StandardBDI implements IFollowService {
 			// This block of code will trigger the check to see if the plan
 			// needs to be repeated
 
-			if (currentMoney + currentStockMoney >= goalMoney) {
+			if ((currentMoney + currentStockMoney) >= goalMoney) {
+				System.out.println("Can END with: " + (currentMoney + currentStockMoney) + "Needed: " + goalMoney);
 				sellAllStocks();
 
 			} else {
@@ -352,12 +353,14 @@ public class StandardBDI implements IFollowService {
 			System.out.println("I am " + identifier + ": Analyzing agents to discard. Currently following: " + followed);
 
 			for (int i = 0; i < followed.size(); i++) {
-				System.out.println("hi");
+				// System.out.println("hi");
 				IComponentIdentifier followedAgent = followed.get(i);
 
 				Double agentPerformance = broker.getPairLinear(followedAgent, agentsRegistered).getValue();
 
-				System.out.println("Agent performance is: " + agentPerformance + " and min performance is: " + minAgentPerformance);
+				// System.out.println("Agent performance is: " +
+				// agentPerformance + " and min performance is: " +
+				// minAgentPerformance);
 				if (agentPerformance < minAgentPerformance) {
 
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
@@ -450,7 +453,8 @@ public class StandardBDI implements IFollowService {
 		}
 
 		private void sellAllStocks() {
-			System.out.println("FIRE SALE SELL EVERYTHING MARKET CRASH: " + identifier + "    " + (currentMoney + currentStockMoney));
+			// System.out.println("FIRE SALE SELL EVERYTHING MARKET CRASH: " +
+			// identifier + " " + (currentMoney + currentStockMoney));
 			if (purchases != null && !purchases.isEmpty()) {
 				for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext();) {
 
@@ -469,7 +473,7 @@ public class StandardBDI implements IFollowService {
 
 				}
 				updateStockMoney();
-				System.out.println("THE END NOW CHECK VALUES: " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
+				System.out.println("THE END OF SALE CHECK VALUES: " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
 			}
 		}
 

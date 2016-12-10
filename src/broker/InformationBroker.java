@@ -123,18 +123,18 @@ public class InformationBroker {
 			return true;
 		}
 	}
-	
+
 	public synchronized Boolean updateAgentRatio(IComponentIdentifier agent, Double ratio) {
-					
+
 		if (!agentsRegistered.isEmpty()) {
-			if (!replaceListPair(agent, agentsRegistered, ratio)){
-				agentsRegistered.add(new Pair<IComponentIdentifier, Double>(agent, ratio ));
+			if (!replaceListPair(agent, agentsRegistered, ratio)) {
+				agentsRegistered.add(new Pair<IComponentIdentifier, Double>(agent, ratio));
 			}
 		}
 		sortListDecreasing(agentsRegistered);
-		
-		System.out.println("Agent list ordered: " + agentsRegistered);
-		
+
+		// System.out.println("Agent list ordered: " + agentsRegistered);
+
 		return true;
 	}
 
@@ -194,8 +194,6 @@ public class InformationBroker {
 		}
 		sortListDecreasing(stockPrices);
 	}
-	
-	
 
 	private synchronized boolean replaceListPair(IComponentIdentifier pairKey, List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
 		Pair<IComponentIdentifier, Double> pair;
