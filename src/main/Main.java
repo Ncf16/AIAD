@@ -1,5 +1,6 @@
 package main;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,11 +21,23 @@ import jadex.commons.SUtil;
 import jadex.commons.future.IFuture;
 import jadex.commons.future.ITuple2Future;
 
+import gui.AppFrame;
+
+
 public class Main {
 
 	static InformationBroker broker = InformationBroker.getInstance();
 
 	public static void main(String args[]) {
+			
+		try {
+			AppFrame appFrame = new AppFrame();
+			appFrame.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
 		ArrayList<IComponentIdentifier> agentIDs = new ArrayList<IComponentIdentifier>();
 
 		/*
