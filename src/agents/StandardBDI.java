@@ -41,6 +41,7 @@ import jadex.micro.annotation.AgentArgument;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentFeature;
+import jadex.micro.annotation.AgentKilled;
 import jadex.micro.annotation.Argument;
 import jadex.micro.annotation.Arguments;
 import jadex.micro.annotation.Binding;
@@ -57,10 +58,14 @@ import services.IFollowService;
 		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"), @Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
 		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "0.3"), @Argument(name = "lowerBoundOfSalesInterval", clazz = Double.class, defaultvalue = "0.75"),
 		@Argument(name = "upperBoundOfSalesInterval", clazz = Double.class, defaultvalue = "1.25"), @Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25"),
-		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"), @Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "0.95") })
+		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"), @Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "0.40") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
 public class StandardBDI implements IFollowService {
+
+	private static final double REJECT_TIP_RETURN_VALUE = -1.0;
+
+	private static final double REWARD_PER_TIP_PERCENTAGE = 0.01;
 
 	private static final double TRUST_LEVERAGE = 0.3;
 
@@ -125,7 +130,7 @@ public class StandardBDI implements IFollowService {
 	 */
 	private Double possibleMoney;
 
-	int maxFollowed = 0; // TODO: change value
+	int maxFollowed = 1; // TODO: change value
 
 	@Belief
 	boolean goalAchieved = false;
@@ -249,11 +254,20 @@ public class StandardBDI implements IFollowService {
 			System.out.println();
 
 			// Returns whether the goal is achieved or not
-			if (currentMoney == 0 && currentStockMoney == 0)
+			if (isAgentBroke() || hasAgentReachedGoal()) {
+				agentReachedGoal();
 				return false; // Don't repeat goal
+			}
+			return true;
 
-			return !(goalAchieved = currentMoney >= goalMoney);
+		}
 
+		public boolean hasAgentReachedGoal() {
+			return goalAchieved = currentMoney >= goalMoney;
+		}
+
+		public boolean isAgentBroke() {
+			return currentMoney == 0 && currentStockMoney == 0;
 		}
 
 	}
@@ -281,22 +295,23 @@ public class StandardBDI implements IFollowService {
 			System.out.println("Plan started.");
 
 			// Money varies, stuff happens here, yada yada
-			// if (currentMoney < 1000)
-			// currentMoney += 10;
+			if (currentMoney < 1000)
+				currentMoney += 10;
 
 			// If goal will be met if all stock money is recovered, then sell
 			// all stocks
+
+			// This block of code will trigger the check to see if the plan
+			// needs to be repeated
+
 			if (currentMoney + currentStockMoney >= goalMoney) {
 				sellAllStocks();
 
 			} else {
-				sellStocks();
-				buyStock(pickBestStock(createStockList()));
+				updateAgentsToFollow();
+				// sellStocks();
+				// buyStock(pickBestStock(createStockList()));
 
-				// This block of code will trigger the check to see if the plan
-				// needs to be repeated
-				if (debug)
-					updateAgentsToFollow();
 			}
 			/***********
 			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
@@ -351,7 +366,7 @@ public class StandardBDI implements IFollowService {
 					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
 					 * *
 					 **************************************************************/
-
+					// TODO SEE THIS EXAMPLE TO CALL STUFF
 					IFuture<IExternalAccess> futExt = cms.getExternalAccess(followedAgent);
 					IExternalAccess extAcc = futExt.get();
 
@@ -360,6 +375,13 @@ public class StandardBDI implements IFollowService {
 
 						@Override
 						public void resultAvailable(IFollowService followedService) {
+							// TODO return here, check if the value is returned
+							// here, se for IFUTURE é só preciso um .get();
+
+							// E tem que ser declarado
+							// IFuture<Double> futDouble =
+							// followedService.stoppedBeingFollowed(identifier);
+							// Double reward = futDouble.get();
 							followedService.stoppedBeingFollowed(identifier);
 
 						}
@@ -373,9 +395,7 @@ public class StandardBDI implements IFollowService {
 					followed.remove(followed.get(i));
 
 				}
-
 			}
-
 		}
 
 		public void followSuccessful() {
@@ -514,10 +534,40 @@ public class StandardBDI implements IFollowService {
 		// TODO BUY STOCk
 		if (bestStock != null) {
 			// TODO "buys stock"
+			System.out.println("BUYING STOCK");
 			bestStock.getValue().setDateOfPurchase(System.currentTimeMillis());
 			currentMoney -= bestStock.getValue().getStockPurchasePrice() * bestStock.getValue().getNumberOfStocks();
 			purchases.add(bestStock);
 			updateStockMoney();
+			sendTipToFollowers(bestStock.getKey());
+
+		}
+	}
+
+	private void sendTipToFollowers(IComponentIdentifier company) {
+		for (IComponentIdentifier follower : followers) {
+
+			IFuture<IExternalAccess> futExt = cms.getExternalAccess(follower);
+			IExternalAccess extAcc = futExt.get();
+
+			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
+			futService.addResultListener(new IResultListener<IFollowService>() {
+
+				// TODO CHECK IF DOING PROPERLY
+				@Override
+				public void resultAvailable(IFollowService toSend) {
+					double reward;
+					if ((reward = toSend.giveStockTip(company, identifier)) > 0)
+						currentMoney += reward;
+					else
+						System.out.println("Tip Rejected");
+				}
+
+				@Override
+				public void exceptionOccurred(Exception arg0) {
+
+				}
+			});
 		}
 	}
 
@@ -615,9 +665,61 @@ public class StandardBDI implements IFollowService {
 		return growth / stdr_dev;
 	}
 
-	/*
-	 * @AgentKilled public IFuture<Void> agentKilled() { return Void; }
-	 */
+	@AgentKilled
+	public IFuture<Void> agentKilled() {
+
+		agentReachedGoal();
+
+		return null;
+	}
+
+	public void agentReachedGoal() {
+		for (IComponentIdentifier hero : followed) {
+
+			IFuture<IExternalAccess> futExt = cms.getExternalAccess(hero);
+			IExternalAccess extAcc = futExt.get();
+
+			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
+			futService.addResultListener(new IResultListener<IFollowService>() {
+
+				// TODO CHECK IF DOING PROPERLY
+				@Override
+				public void resultAvailable(IFollowService heroToSend) {
+					heroToSend.stoppedBeingFollowed(identifier);
+				}
+
+				@Override
+				public void exceptionOccurred(Exception arg0) {
+
+				}
+			});
+
+		}
+
+		/**
+		 * Notifies the followers to stop following the Agent
+		 */
+		for (IComponentIdentifier follower : followers) {
+
+			IFuture<IExternalAccess> futExt = cms.getExternalAccess(follower);
+			IExternalAccess extAcc = futExt.get();
+
+			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
+			futService.addResultListener(new IResultListener<IFollowService>() {
+
+				// TODO CHECK IF DOING PROPERLY
+				@Override
+				public void resultAvailable(IFollowService heroToSend) {
+					heroToSend.stopFollowingMe(identifier);
+				}
+
+				@Override
+				public void exceptionOccurred(Exception arg0) {
+
+				}
+			});
+		}
+	}
 
 	/**
 	 * Companies the Agent already trusts ( assumimos que ele ja tem algum
@@ -648,12 +750,6 @@ public class StandardBDI implements IFollowService {
 	}
 
 	@Override
-	public IFuture<Boolean> buyStocks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public IFuture<Boolean> startedBeingFollowed(IComponentIdentifier follower) {
 
 		if (followers.contains(follower)) {
@@ -679,13 +775,16 @@ public class StandardBDI implements IFollowService {
 	}
 
 	@Override
-	public IFuture<Boolean> giveStockTip(IComponentIdentifier company, IComponentIdentifier sender) {
+	public Double giveStockTip(IComponentIdentifier company, IComponentIdentifier sender) {
 		// Receive tip
+
+		System.out.println("Receiving TIPS: " + " FROM: " + sender + " I AM : " + identifier);
 		if (notInList(company, purchases)) {
 			// Decide
 			Pair<IComponentIdentifier, Double> coefPair = broker.getPairLinear(company, broker.stockPricesCoefVar);
 			if (calculateCompanyRisk(coefPair.getValue()) > maxRisk + TRUST_LEVERAGE) {
-				return IFuture.FALSE;
+				// Rejected Tip
+				return REJECT_TIP_RETURN_VALUE;
 			}
 
 			Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(company, broker.stockPrices);
@@ -695,19 +794,28 @@ public class StandardBDI implements IFollowService {
 
 			buyStock(purchase);
 
-			// Give reward
+			double reward;
+			currentMoney -= (reward = currentMoney * REWARD_PER_TIP_PERCENTAGE);
+			System.out.println("REWARD IS : " + reward);
 
-			return IFuture.TRUE;
+			return reward;
 		}
 
 		// Rejected Tip
-		return IFuture.FALSE;
+		return REJECT_TIP_RETURN_VALUE;
 	}
 
 	@Override
-	public IFuture<Boolean> sendReward(Double reward, IComponentIdentifier sender) {
-		// TODO Auto-generated method stub
-		return IFuture.FALSE;
+	public IFuture<Boolean> stopFollowingMe(IComponentIdentifier tragicHero) {
+		// TODO
+		if (followed.contains(tragicHero)) {
+			System.out.println(tragicHero + " successfuly stopped being followed by: " + identifier);
+			followed.remove(tragicHero);
+			return new Future<Boolean>(true);
+		} else {
+			System.out.println(tragicHero + " not successful removed " + identifier + " from his followers, already wasn't there.");
+			return new Future<Boolean>(false);
+		}
 	}
 
 }
