@@ -130,7 +130,7 @@ public class StandardBDI implements IFollowService {
 	 */
 	private Double possibleMoney;
 
-	int maxFollowed = 1; // TODO: change value
+	int maxFollowed = 3; // TODO: change value
 
 	@Belief
 	boolean goalAchieved = false;
@@ -309,8 +309,8 @@ public class StandardBDI implements IFollowService {
 
 			} else {
 				updateAgentsToFollow();
-				// sellStocks();
-				// buyStock(pickBestStock(createStockList()));
+				sellStocks();
+				buyStock(pickBestStock(createStockList()));
 
 			}
 			/***********
