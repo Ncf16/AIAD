@@ -1,6 +1,5 @@
 package main;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -23,49 +22,59 @@ import jadex.commons.future.ITuple2Future;
 
 import gui.AppFrame;
 
-
 public class Main {
 
 	static InformationBroker broker = InformationBroker.getInstance();
-
+	
+	// Agent Creation Variables
+	public static CreationInfo ci;
+	public static ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut;
+	public static IComponentIdentifier cid;	
+	public static IComponentManagementService cms;
+	public static IExternalAccess platform;
+	
 	public static void main(String args[]) {
-			
-		try {
-			AppFrame appFrame = new AppFrame();
-			appFrame.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
 		ArrayList<IComponentIdentifier> agentIDs = new ArrayList<IComponentIdentifier>();
 
 		/*
 		 * IFuture<IExternalAccess> fut = Starter.createPlatform()
 		 * IExternalAccess platform = fut.get();
 		 */
+		
 		PlatformConfiguration platformConfig = PlatformConfiguration.getDefault();
 		RootComponentConfiguration rootConfig = platformConfig.getRootConfig();
+		
 		// Pass to Starter:
-		IExternalAccess platform = Starter.createPlatform(platformConfig).get();
+		platform = Starter.createPlatform(platformConfig).get();
 
 		rootConfig.setLogging(true);
 		platformConfig.setDebugFutures(true);
 		rootConfig.setAwareness(false);
 
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,
+				IComponentManagementService.class);
 
-		IComponentManagementService cms = fut.get();
+		cms = fut.get();
 
 		// VERY IMPORTANT, FOR BROKER TO BE ABLE TO CALL SERVICES OF AGENTS TO
 		// COMMUNICATE ON HIS PART TO RESPOND
 		broker.initBrokerServiceInfo(platform);
 
-		CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform", "name", "startingMoney", "goalMoney", "debug", "maxMoneySpentOnPurchase" },
+		try {
+			AppFrame frame = new AppFrame();
+			frame.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+	/*	CreationInfo ci = new CreationInfo(SUtil.createHashMap(
+				new String[] { "platform", "name", "startingMoney", "goalMoney", "debug", "maxMoneySpentOnPurchase" },
 				new Object[] { platform, "A1", 50000.0, 100000.0, true, 0.25 }));
-		ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut = cms.createComponent("myStandardBDI", "agents.StandardBDI.class", ci);
+		ITuple2Future<IComponentIdentifier, Map<String, Object>> tupleFut = cms.createComponent("myStandardBDI",
+				"agents.StandardBDI.class", ci);
 		IComponentIdentifier cid = tupleFut.getFirstResult();
-
+*/
 		// ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform",
 		// "name", "startingMoney", "goalMoney", "debug" }, new Object[] {
 		// platform, "A2", 50000.0, 52000.0, true }));
@@ -80,10 +89,11 @@ public class Main {
 		// "agents.StandardBDI.class", ci);
 		// cid = tupleFut.getFirstResult();
 
-		ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" }, new Object[] { "APPLE", 10000.0, StockType.NORMAL }));
+/*		ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
+				new Object[] { "APPLE", 10000.0, StockType.NORMAL }));
 		tupleFut = cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", ci);
 		cid = tupleFut.getFirstResult();
-
+*/
 		// ci = new CreationInfo(SUtil.createHashMap(new String[] {
 		// "companyName", "stockPrice", "stockType" }, new Object[] { "GOOGLE",
 		// 40000.0, StockType.VOLATILE }));
