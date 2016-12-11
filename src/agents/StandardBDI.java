@@ -54,7 +54,7 @@ import services.IFollowService;
 // Multi archetypal agent: can follow different plans along it's life: greedy, cautious, etc.
 
 @Agent
-@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class), @Argument(name = "name", clazz = String.class, defaultvalue = "A"),
+@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class), @Argument(name = "name", clazz = String.class, defaultvalue = "\"A\""),
 		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"), @Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
 		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "0.3"), @Argument(name = "lowerBoundOfSalesInterval", clazz = Double.class, defaultvalue = "0.75"),
 		@Argument(name = "upperBoundOfSalesInterval", clazz = Double.class, defaultvalue = "1.25"), @Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25"),
@@ -173,11 +173,12 @@ public class StandardBDI implements IFollowService {
 		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
 		cms = fut.get();
 		identifier = internalAccess.getComponentIdentifier();
-		broker.registerAgent(identifier);
+
 		// TODO o bdi já não existe?
 		// Map<String, Object> arguments =
 		// bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 
+		System.out.println((String) arguments.get("name"));
 		platform = (IExternalAccess) arguments.get("platform");
 		name = (String) arguments.get("name");
 		maxMoneySpentOnPurchase = (Double) arguments.get("maxMoneySpentOnPurchase");
@@ -187,7 +188,7 @@ public class StandardBDI implements IFollowService {
 
 		currentMoney = startingMoney;
 		currentStockMoney = 0.0;
-
+		broker.registerAgent(identifier, name);
 		scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
@@ -197,7 +198,7 @@ public class StandardBDI implements IFollowService {
 				Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
 
 				System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
-				System.out.println();
+				System.out.println(" AGENT NAME: " + broker.getAgentNames().get(identifier));
 				broker.updateAgentRatio(identifier, successRatio);
 
 			}
@@ -511,7 +512,8 @@ public class StandardBDI implements IFollowService {
 					}
 
 					Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(companyCoefVar.getKey(), broker.stockPrices);
-					StockHolding holding = new StockHolding(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier());
+					System.out.println(pair.getKey().toString() + " sss " + pair.getKey().getLocalName());
+					StockHolding holding = new StockHolding(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier(), broker.getCompanyNames().get(pair.getKey()));
 
 					System.out.println("WE CAN BUY X STOCK: " + holding.getNumberOfStocks() + "  MaxSpendMoney: " + maxSpendMoney + "   Stock Price: " + pair.getValue());
 					if (holding.getNumberOfStocks() > 0)
@@ -794,7 +796,7 @@ public class StandardBDI implements IFollowService {
 			Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(company, broker.stockPrices);
 
 			Pair<IComponentIdentifier, StockHolding> purchase = new Pair<IComponentIdentifier, StockHolding>(company,
-					new StockHolding(currentMoney * maxMoneySpentOnPurchase, pair.getValue(), identifier));
+					new StockHolding(currentMoney * maxMoneySpentOnPurchase, pair.getValue(), identifier, broker.getCompanyNames().get(pair.getKey())));
 
 			buyStock(purchase);
 

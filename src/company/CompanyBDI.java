@@ -1,22 +1,13 @@
 package company;
 
 import java.util.ArrayList;
-import java.util.PriorityQueue;
 
 import agents.BaseAgent;
-import agents.StockHolding;
 import broker.InformationBroker;
 import broker.Pair;
 import company.Stock.StockType;
 import jadex.bdiv3.annotation.Belief;
-import jadex.bdiv3.annotation.Plan;
-import jadex.bdiv3.annotation.PlanAPI;
-import jadex.bdiv3.annotation.PlanAborted;
-import jadex.bdiv3.annotation.PlanBody;
-import jadex.bdiv3.annotation.PlanFailed;
-import jadex.bdiv3.annotation.PlanPassed;
 import jadex.bdiv3.features.IBDIAgentFeature;
-import jadex.bdiv3.runtime.IPlan;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IComponentStep;
 import jadex.bridge.IInternalAccess;
@@ -32,14 +23,13 @@ import jadex.micro.annotation.Argument;
 import jadex.micro.annotation.Arguments;;
 
 @Agent
-@Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "companyName"), @Argument(name = "stockPrice", clazz = Double.class, defaultvalue = "5.0"),
-		@Argument(name = "stockType", clazz = StockType.class, defaultvalue = "1") })
+@Arguments({ @Argument(name = "companyName", clazz = String.class, defaultvalue = "\"C\""), @Argument(name = "stockPrice", clazz = Double.class, defaultvalue = "5.0"),
+		@Argument(name = "stockType", clazz = StockType.class) })
 public class CompanyBDI extends BaseAgent {
 
 	private static final int START_OF_STOCK_PRICE_UPDATES = 0;
 	private static final int TIME_BETWEEN_STOCK_PRICE_UPDATE = 1000;
 
-	@AgentArgument
 	private Stock companyStock = new Stock();
 
 	@AgentArgument
@@ -58,18 +48,18 @@ public class CompanyBDI extends BaseAgent {
 	@Agent
 	private IInternalAccess bdi;
 
-	// TODO ainda é relevante?
-	private PriorityQueue<StockHolding> stocksSold = new PriorityQueue<>(StockHolding.comparator);
-
 	@AgentFeature
 	IExecutionFeature execFeature;
 
 	@AgentCreated
 	public void init() {
+		StockType temp = (StockType) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockType");
+		if (temp == null)
+			temp = StockType.NORMAL;
+
 		identifier = bdi.getComponentIdentifier();
 		this.companyName = (String) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("companyName");
-		this.companyStock = new Stock((double) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockPrice"),
-				(StockType) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockType"));
+		this.companyStock = new Stock((double) internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments().get("stockPrice"), temp);
 	}
 
 	@AgentBody
@@ -80,7 +70,8 @@ public class CompanyBDI extends BaseAgent {
 				companyStock.changePrice();
 				// System.out.println("Price is : " +
 				// companyStock.getStockPrice() + " | " + identifier);
-				broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(internalAccess.getComponentIdentifier(), companyStock.getOldValues()));
+				System.out.println(" Company NAME: " + broker.getCompanyNames().get(identifier));
+				broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(internalAccess.getComponentIdentifier(), companyStock.getOldValues()), companyName);
 
 				return IFuture.DONE;
 			}

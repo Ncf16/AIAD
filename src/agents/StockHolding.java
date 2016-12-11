@@ -9,19 +9,23 @@ public class StockHolding extends CloneObject {
 	private double currentStockPrice;
 	private int numberOfStocks;
 	private long dateOfPurchase;
+	private String name;
 
 	/**
-	 * Pretty much if a purchase is still valid, we need this to keep track of everything happening
-	 * (The question is, are agents will be independent threads so, how to keep track of everything,
-	 * an Agent notifies the company it made the sale?
+	 * Pretty much if a purchase is still valid, we need this to keep track of
+	 * everything happening (The question is, are agents will be independent
+	 * threads so, how to keep track of everything, an Agent notifies the
+	 * company it made the sale?
 	 */
 
-	public StockHolding(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer) {
+	public StockHolding(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer, String name) {
 		this.buyer = buyer;
 		this.stockPurchasePrice = stockPrice;
 		this.currentStockPrice = stockPrice;
 		Double temp = (maxSpendingMoney / stockPrice);
 		this.numberOfStocks = temp.intValue();
+		this.name = name;
+
 		// System.out.println("Purcahse INFO: " + this.numberOfStocks + " " +
 		// temp + " Price: " + stockPrice + " Max Spending Money: " +
 		// maxSpendingMoney);

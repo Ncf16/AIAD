@@ -25,6 +25,9 @@ public class InformationBroker {
 
 	private IExternalAccess platform;
 
+	private HashMap<IComponentIdentifier, String> companyNames = new HashMap<IComponentIdentifier, String>();
+	private HashMap<IComponentIdentifier, String> agentNames = new HashMap<IComponentIdentifier, String>();
+
 	private IComponentManagementService cms;
 
 	// Deprecated
@@ -108,7 +111,7 @@ public class InformationBroker {
 		});
 	}
 
-	public Boolean registerAgent(IComponentIdentifier agent) {
+	public Boolean registerAgent(IComponentIdentifier agent, String name) {
 		if (agentsRegistered.contains(agent) || agent == null) {
 			return false;
 		} else {
@@ -120,6 +123,7 @@ public class InformationBroker {
 			Pair<IComponentIdentifier, Double> pair = new Pair<IComponentIdentifier, Double>(agent, testValue);
 			agentsRegistered.add(pair);
 			System.out.println("Added agent: " + agent + " with value: " + testValue + " to the Information Broker ");
+			agentNames.put(pair.getKey(), name);
 			return true;
 		}
 	}
@@ -138,10 +142,13 @@ public class InformationBroker {
 		return true;
 	}
 
-	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock) {
+	public synchronized void addCompanyInfo(Pair<IComponentIdentifier, ArrayList<Double>> companyStock, String name) {
 		fillStockPrices(companyStock.getKey(), companyStock.getValue());
 		fillCoefVar(companyStock.getKey(), companyStock.getValue());
 		fillGrowth(companyStock.getKey(), companyStock.getValue());
+
+		if (!companyNames.containsKey(companyStock.getKey()))
+			companyNames.put(companyStock.getKey(), name);
 
 		// System.out.println("After Stock price: ");
 		// for (Pair<IComponentIdentifier, Double> p : stockPrices)
@@ -271,6 +278,14 @@ public class InformationBroker {
 			instance = new InformationBroker();
 
 		return instance;
+	}
+
+	public HashMap<IComponentIdentifier, String> getCompanyNames() {
+		return companyNames;
+	}
+
+	public HashMap<IComponentIdentifier, String> getAgentNames() {
+		return agentNames;
 	}
 
 }
