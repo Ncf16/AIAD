@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -154,6 +155,7 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		companyList.setVisibleRowCount(5);
 
 		JScrollPane listScrollPane = new JScrollPane(companyList);
+		companyList.add(new JLabel("Companies"));
 		add(listScrollPane, BorderLayout.CENTER);
 	}
 
@@ -164,9 +166,14 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		actionLog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		actionLog.setSelectedIndex(0);
 		actionLog.addListSelectionListener(this);
-		actionLog.setVisibleRowCount(5);
+		actionLog.setVisibleRowCount(15);
+		
 
 		JScrollPane listScrollPane = new JScrollPane(actionLog);
+		/*Dimension d = actionLog.getPreferredSize();
+		d.width = 200;
+		listScrollPane.setPreferredSize(d);*/
+		actionLog.setPreferredSize(new Dimension(200, 200));
 		add(listScrollPane, BorderLayout.EAST);
 	}
 

@@ -566,6 +566,7 @@ public class StandardBDI implements IFollowService {
 
 			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
 			System.out.println(boughtStock);
+
 			AppPanel.logModel.addElement(boughtStock);
 		}
 	}
