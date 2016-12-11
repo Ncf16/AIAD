@@ -30,9 +30,11 @@ public class CompanyBDI extends BaseAgent {
 	private static final int START_OF_STOCK_PRICE_UPDATES = 0;
 	private static final int TIME_BETWEEN_STOCK_PRICE_UPDATE = 1000;
 
+	@Belief
 	private Stock companyStock = new Stock();
 
 	@AgentArgument
+	@Belief
 	private String companyName;
 
 	@Belief

@@ -63,7 +63,7 @@ import services.IFollowService;
 		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"), @Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "0.40") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
-public class StandardBDI implements IFollowService {
+public class PlayerBDI implements IFollowService {
 
 	private static final double REJECT_TIP_RETURN_VALUE = -1.0;
 
@@ -191,6 +191,13 @@ public class StandardBDI implements IFollowService {
 		currentMoney = startingMoney;
 		currentStockMoney = 0.0;
 		broker.registerAgent(identifier, name, currentMoney);
+
+		// TODO should be here?
+		if (startingMoney >= goalMoney) {
+			System.out.println("END");
+			goalAchieved = true;
+			agentReachedGoal();
+		}
 		scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
@@ -200,7 +207,6 @@ public class StandardBDI implements IFollowService {
 				Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
 
 				System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
-				System.out.println(" AGENT NAME: " + broker.getAgentInfo().get(identifier).getName());
 				broker.updateAgentRatio(identifier, successRatio);
 
 			}
@@ -266,7 +272,7 @@ public class StandardBDI implements IFollowService {
 		}
 
 		public boolean hasAgentReachedGoal() {
-			return goalAchieved = currentMoney >= goalMoney;
+			return (goalAchieved = currentMoney >= goalMoney);
 		}
 
 		public boolean isAgentBroke() {
@@ -371,6 +377,7 @@ public class StandardBDI implements IFollowService {
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
 					String iden1 = broker.getAgentInfo().get(identifier).getName();
 					String iden2 = broker.getAgentInfo().get(followedAgent).getName();
+					// TODO não devia ser iden??
 					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
 					AppPanel.logModel.addElement(stopedFollowing);
 
@@ -710,6 +717,11 @@ public class StandardBDI implements IFollowService {
 	}
 
 	public void agentReachedGoal() {
+		// TODO João Acrescentar Aqui uma entre no log a dizer que o Agente
+		// acabou e chegou ao objectivo
+
+		if (goalAchieved)
+			AppPanel.logModel.addElement("Agent: " + broker.getAgentInfo().get(identifier).getName() + " has reached the end, it has: " + currentMoney + "$ and it needed " + goalMoney + "$");
 		for (IComponentIdentifier hero : followed) {
 
 			IFuture<IExternalAccess> futExt = cms.getExternalAccess(hero);
@@ -810,6 +822,9 @@ public class StandardBDI implements IFollowService {
 
 			broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
 			System.out.println("Reward for Tip is : " + reward);
+			String acceptedTip = broker.getAgentInfo().get(identifier).getName() + " accepted Tip from " + broker.getAgentInfo().get(sender).getName() + " for company: "
+					+ broker.getCompanyNames().get(company) + "]";
+			AppPanel.logModel.addElement(acceptedTip);
 
 			return reward;
 		}

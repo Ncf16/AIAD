@@ -194,9 +194,7 @@ public class AppFrame extends JFrame {
 
 				double stockValue_f = Double.parseDouble(stockValue.getText());
 
-				Main.ci = new CreationInfo(
-						SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
-								new Object[] { companyName.getText(), stockValue_f, stocktype }));
+				Main.ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" }, new Object[] { companyName.getText(), stockValue_f*1.0, stocktype }));
 				Main.tupleFut = Main.cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				AppPanel.companyModel.addElement(companyName.getText());
@@ -217,10 +215,11 @@ public class AppFrame extends JFrame {
 	public class AgentInfo {
 		public String name;
 		String type;
-		double startMoney, goalMoney;
+		double startMoney = 0.0;
+		double goalMoney = 0.0;
 		List<String> agentLog;
-		public Double currentMoney;
-		public Double stockMoney;
+		public Double currentMoney = 0.0;
+		public Double stockMoney = 0.0;
 
 		public AgentInfo(String name, String type, double startMoney, double goalMoney) {
 			this.name = name;
@@ -272,13 +271,12 @@ public class AppFrame extends JFrame {
 			JTextField maxMoneySpentOnPurchase = new JTextField(5);
 			panel.add(new JLabel("Maximum Amount Spent on Purchase [0-1]: "));
 			panel.add(maxMoneySpentOnPurchase);
-			
+
 			JTextField minAgentPerformance = new JTextField(5);
 			panel.add(new JLabel("Minimum Agent Performance[0-1]: "));
 			panel.add(minAgentPerformance);
 
-			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent",
-					JOptionPane.OK_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
 
 				// Debug Stuff
@@ -312,17 +310,15 @@ public class AppFrame extends JFrame {
 				double maxRisk_f = Double.parseDouble(maxRisk.getText());
 				double lowerBoundOfSalesInterval_f = Double.parseDouble(lowerBoundOfSalesInterval.getText());
 				double upperBoundOfSalesInterval_f = Double.parseDouble(upperBoundOfSalesInterval.getText());
-				double minAgentPerformance_f= Double.parseDouble(minAgentPerformance.getText());
-				
+				double minAgentPerformance_f = Double.parseDouble(minAgentPerformance.getText());
+
 				// Create an agent
 				Main.ci = new CreationInfo(SUtil.createHashMap(
-						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk",
-								"lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug",
-								"maxMoneySpentOnPurchase", "minAgentPerformance" },
-						new Object[] { Main.platform, agentName.getText(), startingMoney_f, goalMoney_f, maxRisk_f,
-								lowerBoundOfSalesInterval_f, upperBoundOfSalesInterval_f, true,
-								maxMoneySpentOnPurchase_f, minAgentPerformance_f}));
-				Main.tupleFut = Main.cms.createComponent("myStandardBDI", "agents.StandardBDI.class", Main.ci);
+						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk", "lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug", "maxMoneySpentOnPurchase",
+								"minAgentPerformance" },
+						new Object[] { Main.platform, agentName.getText(), startingMoney_f * 1.0, goalMoney_f * 1.0, maxRisk_f * 1.0, lowerBoundOfSalesInterval_f * 1.0,
+								upperBoundOfSalesInterval_f * 1.0, true, maxMoneySpentOnPurchase_f * 1.0, minAgentPerformance_f * 1.0 }));
+				Main.tupleFut = Main.cms.createComponent("myPlayerBDI", "agents.PlayerBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				// Add To List
 				agentList.add(new AgentInfo(agentName.getText(), agentType, startingMoney_f, goalMoney_f));
