@@ -190,7 +190,7 @@ public class StandardBDI implements IFollowService {
 
 		currentMoney = startingMoney;
 		currentStockMoney = 0.0;
-		broker.registerAgent(identifier, name);
+		broker.registerAgent(identifier, name, currentMoney);
 		scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
@@ -200,7 +200,7 @@ public class StandardBDI implements IFollowService {
 				Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
 
 				System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
-				System.out.println(" AGENT NAME: " + broker.getAgentNames().get(identifier));
+				System.out.println(" AGENT NAME: " + broker.getAgentInfo().get(identifier).getName());
 				broker.updateAgentRatio(identifier, successRatio);
 
 			}
@@ -315,8 +315,8 @@ public class StandardBDI implements IFollowService {
 				updateAgentsToFollow();
 				sellStocks();
 				buyStock(pickBestStock(createStockList()));
-
 			}
+			broker.updateAgentInfo(identifier, currentMoney);
 			/***********
 			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
 			 *****************/
@@ -342,7 +342,6 @@ public class StandardBDI implements IFollowService {
 
 			System.out.println("I am: " + identifier + " and my current followers are: " + followers);
 			System.out.println("I am: " + identifier + " and I am following: " + followed);
-			
 
 			// Discard Agents that have been unsuccessful
 			discardUnsuccessful(agentsRegistered);
@@ -368,12 +367,11 @@ public class StandardBDI implements IFollowService {
 				if (agentPerformance < minAgentPerformance) {
 
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
-					String iden1 = broker.getAgentNames().get(identifier);
-					String iden2 = broker.getAgentNames().get(followedAgent);
+					String iden1 = broker.getAgentInfo().get(identifier).getName();
+					String iden2 = broker.getAgentInfo().get(followedAgent).getName();
 					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
 					AppPanel.logModel.addElement(stopedFollowing);
-					
-					
+
 					/**************************************************************
 					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
 					 * *
@@ -435,14 +433,13 @@ public class StandardBDI implements IFollowService {
 					// already following (3) isn't himself
 
 					if (agentToAnalyze.getValue() >= minAgentPerformance && !followed.contains(agentToAnalyze.getKey()) && !agentToAnalyze.getKey().equals(identifier)) {
-						
-						String iden1 = broker.getAgentNames().get(identifier);
-						String iden2 = broker.getAgentNames().get(agentToAnalyze.getKey());
-								
+
+						String iden1 = broker.getAgentInfo().get(identifier).getName();
+						String iden2 = broker.getAgentInfo().get(agentToAnalyze.getKey()).getName();
+
 						String startedFollowing = iden1 + " started following " + iden2;
 						AppPanel.logModel.addElement(startedFollowing);
-						
-						
+
 						followed.add(agentToAnalyze.getKey());
 
 						IFuture<IExternalAccess> futExt = cms.getExternalAccess(agentToAnalyze.getKey());
@@ -489,6 +486,7 @@ public class StandardBDI implements IFollowService {
 
 				}
 				updateStockMoney();
+				broker.updateAgentInfo(identifier, currentMoney);
 				System.out.println("THE END OF SALE CHECK VALUES: " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
 			}
 		}
@@ -561,12 +559,12 @@ public class StandardBDI implements IFollowService {
 			purchases.add(bestStock);
 			updateStockMoney();
 			sendTipToFollowers(bestStock.getKey());
-			
+
 			double val = bestStock.getValue().getStockPurchasePrice() * bestStock.getValue().getNumberOfStocks();
-			String agent = broker.getAgentNames().get(identifier);
+			AgentInfo agent = broker.getAgentInfo().get(identifier);
 			String company = broker.getCompanyNames().get(bestStock.getKey());
-					
-			String boughtStock = agent + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+
+			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
 			AppPanel.logModel.addElement(boughtStock);
 		}
 	}
@@ -617,12 +615,12 @@ public class StandardBDI implements IFollowService {
 					// TODO sells the stock
 					currentMoney += stockValue * p.getNumberOfStocks();
 					iter.remove();
-					
+
 					double val = stockValue * p.getNumberOfStocks();
-					String agent = broker.getAgentNames().get(identifier);
+					AgentInfo agent = broker.getAgentInfo().get(identifier);
 					String company = broker.getCompanyNames().get(pair.getKey());
-							
-					String soldStock = agent + " sold " + p.getNumberOfStocks()  + " " + company + "'s stocks [" + val + "€]";
+
+					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
 					AppPanel.logModel.addElement(soldStock);
 
 				}
@@ -830,6 +828,8 @@ public class StandardBDI implements IFollowService {
 
 			double reward;
 			currentMoney -= (reward = currentMoney * REWARD_PER_TIP_PERCENTAGE);
+
+			broker.updateAgentInfo(identifier, currentMoney);
 			System.out.println("REWARD IS : " + reward);
 
 			return reward;
@@ -852,4 +852,7 @@ public class StandardBDI implements IFollowService {
 		}
 	}
 
+	public Double returnCurrentMoney() {
+		return currentMoney;
+	}
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
+import agents.AgentInfo;
 import company.Stock;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
@@ -26,7 +27,7 @@ public class InformationBroker {
 	private IExternalAccess platform;
 
 	private HashMap<IComponentIdentifier, String> companyNames = new HashMap<IComponentIdentifier, String>();
-	public HashMap<IComponentIdentifier, String> agentNames = new HashMap<IComponentIdentifier, String>();
+	private HashMap<IComponentIdentifier, AgentInfo> agentInfo = new HashMap<IComponentIdentifier, AgentInfo>();
 
 	private IComponentManagementService cms;
 
@@ -111,7 +112,7 @@ public class InformationBroker {
 		});
 	}
 
-	public Boolean registerAgent(IComponentIdentifier agent, String name) {
+	public Boolean registerAgent(IComponentIdentifier agent, String name, Double currentMoney) {
 		if (agentsRegistered.contains(agent) || agent == null) {
 			return false;
 		} else {
@@ -123,7 +124,7 @@ public class InformationBroker {
 			Pair<IComponentIdentifier, Double> pair = new Pair<IComponentIdentifier, Double>(agent, testValue);
 			agentsRegistered.add(pair);
 			System.out.println("Added agent: " + agent + " with value: " + testValue + " to the Information Broker ");
-			agentNames.put(pair.getKey(), name);
+			agentInfo.put(pair.getKey(), new AgentInfo(name, currentMoney));
 			return true;
 		}
 	}
@@ -284,8 +285,15 @@ public class InformationBroker {
 		return companyNames;
 	}
 
-	public HashMap<IComponentIdentifier, String> getAgentNames() {
-		return agentNames;
+	public HashMap<IComponentIdentifier, AgentInfo> getAgentInfo() {
+		return agentInfo;
+	}
+
+	public void updateAgentInfo(IComponentIdentifier identifier, Double currentMoney) {
+		if (agentInfo.containsKey(identifier)) {
+			agentInfo.get(identifier).setCurrentMoney(currentMoney);
+		}
+
 	}
 
 }
