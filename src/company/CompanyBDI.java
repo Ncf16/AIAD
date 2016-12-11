@@ -80,18 +80,8 @@ public class CompanyBDI extends BaseAgent {
 		});
 	}
 
-	public boolean endCompany() {
-		return false;
-	}
-
 	public void createStock(double price) {
 		companyStock = new Stock(price);
-	}
-
-	/**
-	 * Called each time the Company update it's StockPrice
-	 */
-	public void updateBrokerInfo() {
 	}
 
 }
