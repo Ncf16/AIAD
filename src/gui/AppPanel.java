@@ -116,10 +116,10 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 				panel.add(Box.createVerticalStrut(15));
 
 				// Get Agent identifier
-				panel.add(new JLabel("Current Money [cash]: "));
+				panel.add(new JLabel("Current Money [cash]: " + temp.currentMoney + "€"));
 				panel.add(Box.createVerticalStrut(15));
 
-				panel.add(new JLabel("Current Money [stocks]: "));
+				panel.add(new JLabel("Current Money [stocks]: " + temp.stockMoney + "€"));
 				panel.add(Box.createVerticalStrut(15));
 
 				DefaultListModel listModel = new DefaultListModel();

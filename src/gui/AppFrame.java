@@ -216,9 +216,12 @@ public class AppFrame extends JFrame {
 	}
 	
 	public class AgentInfo {
-		String name, type;
+		public String name;
+		String type;
 		double startMoney, goalMoney;
 		List<String> agentLog;
+		public Double currentMoney;
+		public Double stockMoney;
 
 		public AgentInfo(String name, String type, double startMoney, double goalMoney) {
 			this.name = name;

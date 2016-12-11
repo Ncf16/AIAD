@@ -11,6 +11,7 @@ import java.util.Random;
 
 import agents.AgentInfo;
 import company.Stock;
+import gui.AppFrame;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
 import jadex.bridge.service.search.SServiceProvider;
@@ -292,6 +293,12 @@ public class InformationBroker {
 		if (agentInfo.containsKey(identifier)) {
 			agentInfo.get(identifier).setCurrentMoney(currentMoney);
 			agentInfo.get(identifier).setStockMoney(stockMoney);
+			for (AppFrame.AgentInfo temp : AppFrame.agentList){
+				if (temp.name.equals(agentInfo.get(identifier).getName())){
+					temp.currentMoney = currentMoney;
+					temp.stockMoney = stockMoney;
+				}
+			}
 		}
 
 	}
