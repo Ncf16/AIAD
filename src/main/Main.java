@@ -3,7 +3,7 @@ package main;
 import java.util.ArrayList;
 import java.util.Map;
 
-import agents.StandardBDI;
+import agents.PlayerBDI;
 import broker.InformationBroker;
 import broker.Pair;
 import company.Stock;
