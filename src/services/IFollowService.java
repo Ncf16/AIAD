@@ -12,5 +12,5 @@ public interface IFollowService {
 	public IFuture<Boolean> stopFollowingMe(IComponentIdentifier tragicHero);
 
 	public Double giveStockTip(IComponentIdentifier company, IComponentIdentifier sender);
- 
+
 }
