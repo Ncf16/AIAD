@@ -266,12 +266,16 @@ public class AppFrame extends JFrame {
 			panel.add(lowerBoundOfSalesInterval);
 
 			JTextField upperBoundOfSalesInterval = new JTextField(5);
-			panel.add(new JLabel("Goal Money: "));
+			panel.add(new JLabel("Upper Bound of Sales Interval: "));
 			panel.add(upperBoundOfSalesInterval);
 
 			JTextField maxMoneySpentOnPurchase = new JTextField(5);
 			panel.add(new JLabel("Maximum Amount Spent on Purchase [0-1]: "));
 			panel.add(maxMoneySpentOnPurchase);
+			
+			JTextField minAgentPerformance = new JTextField(5);
+			panel.add(new JLabel("Minimum Agent Performance[0-1]: "));
+			panel.add(minAgentPerformance);
 
 			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent",
 					JOptionPane.OK_CANCEL_OPTION);
@@ -285,6 +289,7 @@ public class AppFrame extends JFrame {
 				System.out.println("maxRisk: " + maxRisk.getText());
 				System.out.println("lowerBoundOfSalesInterval: " + lowerBoundOfSalesInterval.getText());
 				System.out.println("upperBoundOfSalesInterval: " + upperBoundOfSalesInterval.getText());
+				System.out.println("minAgentPerformance: " + minAgentPerformance.getText());
 
 				String agentType = "normal";
 				if (cautious.isSelected()) {
@@ -307,15 +312,16 @@ public class AppFrame extends JFrame {
 				double maxRisk_f = Double.parseDouble(maxRisk.getText());
 				double lowerBoundOfSalesInterval_f = Double.parseDouble(lowerBoundOfSalesInterval.getText());
 				double upperBoundOfSalesInterval_f = Double.parseDouble(upperBoundOfSalesInterval.getText());
-
+				double minAgentPerformance_f= Double.parseDouble(minAgentPerformance.getText());
+				
 				// Create an agent
 				Main.ci = new CreationInfo(SUtil.createHashMap(
 						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk",
 								"lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug",
-								"maxMoneySpentOnPurchase" },
+								"maxMoneySpentOnPurchase", "minAgentPerformance" },
 						new Object[] { Main.platform, agentName.getText(), startingMoney_f, goalMoney_f, maxRisk_f,
 								lowerBoundOfSalesInterval_f, upperBoundOfSalesInterval_f, true,
-								maxMoneySpentOnPurchase_f }));
+								maxMoneySpentOnPurchase_f, minAgentPerformance_f}));
 				Main.tupleFut = Main.cms.createComponent("myStandardBDI", "agents.StandardBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				// Add To List
