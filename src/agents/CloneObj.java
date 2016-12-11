@@ -1,9 +1,9 @@
 package agents;
 
-public class CloneObject {
-	public CloneObject clone() {
+public class CloneObj {
+	public CloneObj clone() {
 		try {
-			return (CloneObject) super.clone();
+			return (CloneObj) super.clone();
 		} catch (CloneNotSupportedException err) {
 			return null;
 		}

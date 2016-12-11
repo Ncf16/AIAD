@@ -3,7 +3,7 @@ package agents;
 import java.util.Comparator;
 import jadex.bridge.IComponentIdentifier;
 
-public class StockHolding extends CloneObject {
+public class StockHolding extends CloneObj {
 	private IComponentIdentifier buyer;
 	private double stockPurchasePrice;
 	private double currentStockPrice;
