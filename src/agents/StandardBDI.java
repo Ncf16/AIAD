@@ -298,8 +298,10 @@ public class StandardBDI implements IFollowService {
 			System.out.println("Plan started.");
 
 			// Money varies, stuff happens here, yada yada
-			if (currentMoney < 1000)
-				currentMoney += 10;
+			// Debug Only
+			// if(debug)
+			// if (currentMoney < 1000)
+			// currentMoney += 10;
 
 			// If goal will be met if all stock money is recovered, then sell
 			// all stocks
@@ -479,15 +481,13 @@ public class StandardBDI implements IFollowService {
 
 					StockHolding p = pair.getValue();
 					Double stockValue = companyStockPair.getValue();
-					// TODO check if ratio formula is correct
-					double ratio = stockValue / p.getStockPurchasePrice();
 					currentMoney += stockValue * p.getNumberOfStocks();
 					iter.remove();
 
 				}
 				updateStockMoney();
-				broker.updateAgentInfo(identifier, currentMoney,currentStockMoney);
-				System.out.println("THE END OF SALE CHECK VALUES: " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
+				broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
+				System.out.println("Sold All Stock: " + identifier + "  " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
 			}
 		}
 
@@ -565,6 +565,7 @@ public class StandardBDI implements IFollowService {
 			String company = broker.getCompanyNames().get(bestStock.getKey());
 
 			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+			System.out.println(boughtStock);
 			AppPanel.logModel.addElement(boughtStock);
 		}
 	}
@@ -582,9 +583,10 @@ public class StandardBDI implements IFollowService {
 				@Override
 				public void resultAvailable(IFollowService toSend) {
 					double reward;
-					if ((reward = toSend.giveStockTip(company, identifier)) > 0)
+					if ((reward = toSend.giveStockTip(company, identifier)) > 0) {
 						currentMoney += reward;
-					else
+						System.out.println("Tip from : " + identifier + " was accpeted");
+					} else
 						System.out.println("Tip Rejected");
 				}
 
@@ -621,6 +623,7 @@ public class StandardBDI implements IFollowService {
 					String company = broker.getCompanyNames().get(pair.getKey());
 
 					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+					System.out.print(soldStock);
 					AppPanel.logModel.addElement(soldStock);
 
 				}
@@ -753,33 +756,8 @@ public class StandardBDI implements IFollowService {
 		}
 	}
 
-	/**
-	 * Companies the Agent already trusts ( assumimos que ele ja tem algum
-	 * conhecimento de antes)
-	 */
-	@Belief
-	private Set<String> trustedCompanies = new HashSet<String>();
-
 	@Belief
 	private List<String> followedAgentsCID = new ArrayList<String>();
-
-	/**
-	 * @return The companies the agent trusts
-	 */
-	@Belief
-	public Set<String> getTrustedCompanies() {
-		return trustedCompanies;
-	}
-
-	/**
-	 * sets the trusted companies
-	 * 
-	 * @param trustedCompanies
-	 */
-	@Belief
-	public void setTrustedCompanies(Set<String> trustedCompanies) {
-		this.trustedCompanies = trustedCompanies;
-	}
 
 	@Override
 	public IFuture<Boolean> startedBeingFollowed(IComponentIdentifier follower) {
@@ -810,7 +788,7 @@ public class StandardBDI implements IFollowService {
 	public Double giveStockTip(IComponentIdentifier company, IComponentIdentifier sender) {
 		// Receive tip
 
-		System.out.println("Receiving TIPS: " + " FROM: " + sender + " I AM : " + identifier);
+		System.out.println("Receiving Tip: " + " FROM: " + sender + " I AM : " + identifier);
 		if (notInList(company, purchases)) {
 			// Decide
 			Pair<IComponentIdentifier, Double> coefPair = broker.getPairLinear(company, broker.stockPricesCoefVar);
@@ -830,7 +808,7 @@ public class StandardBDI implements IFollowService {
 			currentMoney -= (reward = currentMoney * REWARD_PER_TIP_PERCENTAGE);
 
 			broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
-			System.out.println("REWARD IS : " + reward);
+			System.out.println("Reward for Tip is : " + reward);
 
 			return reward;
 		}
