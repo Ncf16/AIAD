@@ -107,17 +107,17 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		for (AgentInfo temp : AppFrame.agentList) {
 			if (temp.name.equals(agentName)) {
 
-				panel.add(new JLabel("Starting Money: " + temp.startMoney + "€"));
+				panel.add(new JLabel("Starting Money: " + String.format("%.5g%n", temp.startMoney )+ "€"));
 				panel.add(Box.createVerticalStrut(15));
 
-				panel.add(new JLabel("Goal Money: " + temp.goalMoney + "€"));
+				panel.add(new JLabel("Goal Money: " + String.format("%.5g%n", temp.goalMoney) + "€"));
 				panel.add(Box.createVerticalStrut(15));
 
 				// Get Agent identifier
-				panel.add(new JLabel("Current Money [cash]: " + temp.currentMoney + "€"));
+				panel.add(new JLabel("Current Money [cash]: " + String.format("%.5g%n", temp.currentMoney) + "€"));
 				panel.add(Box.createVerticalStrut(15));
 
-				panel.add(new JLabel("Current Money [stocks]: " + temp.stockMoney + "€"));
+				panel.add(new JLabel("Current Money [stocks]: " + String.format("%.5g%n", temp.stockMoney)+ "€"));
 				panel.add(Box.createVerticalStrut(15));
 
 				DefaultListModel listModel = new DefaultListModel();
