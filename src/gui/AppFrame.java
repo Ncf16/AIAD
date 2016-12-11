@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-
 import company.Stock.StockType;
 import gui.AppFrame.AgentInfo;
 import jadex.bridge.IComponentIdentifier;
@@ -67,7 +66,7 @@ public class AppFrame extends JFrame {
 	}
 
 	public void start() {
-		setSize(534, 401);
+		setSize(400, 500);
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
@@ -128,7 +127,7 @@ public class AppFrame extends JFrame {
 			int res = JOptionPane.showConfirmDialog(rootPane, msg);
 
 			if (res == JOptionPane.YES_OPTION) {
-				setSize(642, 598);
+				setSize(600, 450);
 
 				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 				setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
@@ -207,14 +206,14 @@ public class AppFrame extends JFrame {
 		}
 	}
 
-	public static void addToAgentLog (String name, String log){
-		for (AgentInfo it : agentList){
-			if (it.name.equals(name)){
+	public static void addToAgentLog(String name, String log) {
+		for (AgentInfo it : agentList) {
+			if (it.name.equals(name)) {
 				it.agentLog.add(log);
 			}
 		}
 	}
-	
+
 	public class AgentInfo {
 		public String name;
 		String type;
@@ -258,6 +257,18 @@ public class AppFrame extends JFrame {
 			panel.add(new JLabel("Goal Money: "));
 			panel.add(goalMoney);
 
+			JTextField maxRisk = new JTextField(5);
+			panel.add(new JLabel("Maximum Risk [0-1]: "));
+			panel.add(maxRisk);
+
+			JTextField lowerBoundOfSalesInterval = new JTextField(5);
+			panel.add(new JLabel("Lower Bound of Sales Interval: "));
+			panel.add(lowerBoundOfSalesInterval);
+
+			JTextField upperBoundOfSalesInterval = new JTextField(5);
+			panel.add(new JLabel("Goal Money: "));
+			panel.add(upperBoundOfSalesInterval);
+
 			JTextField maxMoneySpentOnPurchase = new JTextField(5);
 			panel.add(new JLabel("Maximum Amount Spent on Purchase [0-1]: "));
 			panel.add(maxMoneySpentOnPurchase);
@@ -271,6 +282,9 @@ public class AppFrame extends JFrame {
 				System.out.println("start: " + startingMoney.getText());
 				System.out.println("goal: " + goalMoney.getText());
 				System.out.println("maxMoneySpentOnPurchase: " + maxMoneySpentOnPurchase.getText());
+				System.out.println("maxRisk: " + maxRisk.getText());
+				System.out.println("lowerBoundOfSalesInterval: " + lowerBoundOfSalesInterval.getText());
+				System.out.println("upperBoundOfSalesInterval: " + upperBoundOfSalesInterval.getText());
 
 				String agentType = "normal";
 				if (cautious.isSelected()) {
@@ -290,12 +304,17 @@ public class AppFrame extends JFrame {
 				double startingMoney_f = Double.parseDouble(startingMoney.getText());
 				double goalMoney_f = Double.parseDouble(goalMoney.getText());
 				double maxMoneySpentOnPurchase_f = Double.parseDouble(maxMoneySpentOnPurchase.getText());
+				double maxRisk_f = Double.parseDouble(maxRisk.getText());
+				double lowerBoundOfSalesInterval_f = Double.parseDouble(lowerBoundOfSalesInterval.getText());
+				double upperBoundOfSalesInterval_f = Double.parseDouble(upperBoundOfSalesInterval.getText());
 
 				// Create an agent
 				Main.ci = new CreationInfo(SUtil.createHashMap(
-						new String[] { "platform", "name", "startingMoney", "goalMoney", "debug",
+						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk",
+								"lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug",
 								"maxMoneySpentOnPurchase" },
-						new Object[] { Main.platform, agentName.getText(), startingMoney_f, goalMoney_f, true,
+						new Object[] { Main.platform, agentName.getText(), startingMoney_f, goalMoney_f, maxRisk_f,
+								lowerBoundOfSalesInterval_f, upperBoundOfSalesInterval_f, true,
 								maxMoneySpentOnPurchase_f }));
 				Main.tupleFut = Main.cms.createComponent("myStandardBDI", "agents.StandardBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
