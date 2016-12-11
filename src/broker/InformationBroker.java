@@ -32,12 +32,6 @@ public class InformationBroker {
 
 	private IComponentManagementService cms;
 
-	// Deprecated
-	// public HashMap<IComponentIdentifier, Double> companyRates = new
-	// HashMap<IComponentIdentifier, Double>();
-	// public HashMap<IComponentIdentifier, Double> companyRates = new
-	// HashMap<IComponentIdentifier,
-	// Double>();
 
 	private InformationBroker() {
 
@@ -150,22 +144,6 @@ public class InformationBroker {
 
 		if (!companyNames.containsKey(companyStock.getKey()))
 			companyNames.put(companyStock.getKey(), name);
-
-		// System.out.println("After Stock price: ");
-		// for (Pair<IComponentIdentifier, Double> p : stockPrices)
-		// System.out.println(p + " " + p.getKey().getLocalName());
-		// System.out.println("");
-		// System.out.println("Growth");
-		// for (Pair<IComponentIdentifier, Double> p : stockPricesGrowth)
-		// System.out.println(p + " " + p.getKey().getLocalName());
-		// System.out.println("");
-		// System.out.println("Stadr Dev: ");
-		// for (Pair<IComponentIdentifier, Double> p :
-		// stockPricesStandardDeviation)
-		// System.out.println(p + " " + p.getKey().getLocalName());
-		//
-		// System.out.println("End\n");
-
 	}
 
 	public synchronized void fillCoefVar(IComponentIdentifier company, ArrayList<Double> list) {

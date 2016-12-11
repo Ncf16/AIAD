@@ -53,14 +53,17 @@ import jadex.micro.annotation.RequiredService;
 import jadex.micro.annotation.RequiredServices;
 import services.IFollowService;
 
-// Multi archetypal agent: can follow different plans along it's life: greedy, cautious, etc.
-
 @Agent
-@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class), @Argument(name = "name", clazz = String.class, defaultvalue = "\"A\""),
-		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"), @Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
-		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "0.3"), @Argument(name = "lowerBoundOfSalesInterval", clazz = Double.class, defaultvalue = "0.75"),
-		@Argument(name = "upperBoundOfSalesInterval", clazz = Double.class, defaultvalue = "1.25"), @Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25"),
-		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"), @Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "0.40") })
+@Arguments({ @Argument(name = "platform", clazz = IExternalAccess.class),
+		@Argument(name = "name", clazz = String.class, defaultvalue = "\"A\""),
+		@Argument(name = "startingMoney", clazz = Double.class, defaultvalue = "300.0"),
+		@Argument(name = "goalMoney", clazz = Double.class, defaultvalue = "2000.0"),
+		@Argument(name = "maxRisk", clazz = Double.class, defaultvalue = "0.3"),
+		@Argument(name = "lowerBoundOfSalesInterval", clazz = Double.class, defaultvalue = "0.75"),
+		@Argument(name = "upperBoundOfSalesInterval", clazz = Double.class, defaultvalue = "1.25"),
+		@Argument(name = "maxMoneySpentOnPurchase", clazz = Double.class, defaultvalue = "0.25"),
+		@Argument(name = "debug", clazz = Boolean.class, defaultvalue = "true"),
+		@Argument(name = "minAgentPerformance", clazz = Double.class, defaultvalue = "0.40") })
 @RequiredServices(@RequiredService(name = "followservices", type = IFollowService.class, multiple = true, binding = @Binding(scope = Binding.SCOPE_GLOBAL)))
 @ProvidedServices(@ProvidedService(type = IFollowService.class))
 public class PlayerBDI implements IFollowService {
@@ -90,8 +93,6 @@ public class PlayerBDI implements IFollowService {
 	@Belief
 	@AgentArgument
 	private Double maxRisk;
-
-	// TODO: minRisk
 
 	@Belief
 	@AgentArgument
@@ -124,15 +125,11 @@ public class PlayerBDI implements IFollowService {
 
 	@Belief
 	@AgentArgument
-	private Double goalMoney; // Is this supposed to be a belief?
+	private Double goalMoney;
 
 	@Belief
-	/**
-	 * CurrentMoney+MoneyIfAllStocksWereSold
-	 */
-	private Double possibleMoney;
 
-	int maxFollowed = 3; // TODO: change value
+	int maxFollowed = 3;
 
 	@Belief
 	boolean goalAchieved = false;
@@ -146,7 +143,6 @@ public class PlayerBDI implements IFollowService {
 	@Belief
 	public List<IComponentIdentifier> followers = new ArrayList<IComponentIdentifier>();
 
-	// TODO change to Hashmap?
 	private ArrayList<Pair<IComponentIdentifier, StockHolding>> purchases = new ArrayList<Pair<IComponentIdentifier, StockHolding>>();
 
 	private InformationBroker broker;
@@ -171,14 +167,12 @@ public class PlayerBDI implements IFollowService {
 	public void init() {
 
 		broker = InformationBroker.getInstance();
-		Map<String, Object> arguments = internalAccess.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
+		Map<String, Object> arguments = internalAccess.getComponentFeature(IArgumentsResultsFeature.class)
+				.getArguments();
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,
+				IComponentManagementService.class);
 		cms = fut.get();
 		identifier = internalAccess.getComponentIdentifier();
-
-		// TODO o bdi já não existe?
-		// Map<String, Object> arguments =
-		// bdi.getComponentFeature(IArgumentsResultsFeature.class).getArguments();
 
 		System.out.println((String) arguments.get("name"));
 		platform = (IExternalAccess) arguments.get("platform");
@@ -192,7 +186,6 @@ public class PlayerBDI implements IFollowService {
 		currentStockMoney = 0.0;
 		broker.registerAgent(identifier, name, currentMoney);
 
-		// TODO should be here?
 		if (startingMoney >= goalMoney) {
 			System.out.println("END");
 			goalAchieved = true;
@@ -206,7 +199,8 @@ public class PlayerBDI implements IFollowService {
 					updateStockMoney();
 					Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
 
-					System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
+					System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: "
+							+ currentStockMoney + " | New success ratio: " + successRatio);
 					broker.updateAgentRatio(identifier, successRatio);
 
 				}
@@ -220,13 +214,9 @@ public class PlayerBDI implements IFollowService {
 
 		System.out.println("Debug activated = " + debug);
 
-		// System.out.println("I am: " + identifier + " and I have " +
-		// currentMoney + "$");
-
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -260,7 +250,8 @@ public class PlayerBDI implements IFollowService {
 		 */
 		@GoalRecurCondition(beliefs = "counter")
 		public boolean checkRecur() {
-			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney + " Condition: " + (currentMoney < goalMoney));
+			System.out.println("Check recur, currentMoney: " + currentMoney + ", goalMoney: " + goalMoney
+					+ " Condition: " + (currentMoney < goalMoney));
 			System.out.println();
 
 			// Returns whether the goal is achieved or not
@@ -282,10 +273,9 @@ public class PlayerBDI implements IFollowService {
 
 	}
 
-	// TODO: when agent gets killed, goes to all the agents who follow him and
+	// when agent gets killed, goes to all the agents who follow him and
 	// invokes a service
 	// saying "removeMe"
-	// TODO: when an agent reaches a goal, kill him?
 
 	@Plan(trigger = @Trigger(goals = GetRich.class))
 	private class InvestPlan {
@@ -296,19 +286,10 @@ public class PlayerBDI implements IFollowService {
 
 		}
 
-		// Fornece Venda de Ações -> Agents
-		// Fornece Dados Ao broker
-
 		@PlanBody
 		public void plan(GetRich goal) {
 
 			System.out.println("Plan started.");
-
-			// Money varies, stuff happens here, yada yada
-			// Debug Only
-			// if(debug)
-			// if (currentMoney < 1000)
-			// currentMoney += 10;
 
 			// If goal will be met if all stock money is recovered, then sell
 			// all stocks
@@ -362,7 +343,8 @@ public class PlayerBDI implements IFollowService {
 
 		public void discardUnsuccessful(List<Pair<IComponentIdentifier, Double>> agentsRegistered) {
 
-			System.out.println("I am " + identifier + ": Analyzing agents to discard. Currently following: " + followed);
+			System.out
+					.println("I am " + identifier + ": Analyzing agents to discard. Currently following: " + followed);
 
 			for (int i = 0; i < followed.size(); i++) {
 				// System.out.println("hi");
@@ -370,23 +352,20 @@ public class PlayerBDI implements IFollowService {
 
 				Double agentPerformance = broker.getPairLinear(followedAgent, agentsRegistered).getValue();
 
-				// System.out.println("Agent performance is: " +
-				// agentPerformance + " and min performance is: " +
-				// minAgentPerformance);
 				if (agentPerformance < minAgentPerformance) {
 
-					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
+					System.out.println(
+							"Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
 					String iden1 = broker.getAgentInfo().get(identifier).getName();
 					String iden2 = broker.getAgentInfo().get(followedAgent).getName();
-					// TODO não devia ser iden??
-					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
+					String stopedFollowing = iden1 + " stoped following " + iden2 + "[Performance : " + agentPerformance
+							+ "]";
 					AppPanel.logModel.addElement(stopedFollowing);
 
 					/**************************************************************
 					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
 					 * *
 					 **************************************************************/
-					// TODO SEE THIS EXAMPLE TO CALL STUFF
 					IFuture<IExternalAccess> futExt = cms.getExternalAccess(followedAgent);
 					IExternalAccess extAcc = futExt.get();
 
@@ -395,20 +374,11 @@ public class PlayerBDI implements IFollowService {
 
 						@Override
 						public void resultAvailable(IFollowService followedService) {
-							// TODO return here, check if the value is returned
-							// here, se for IFUTURE é só preciso um .get();
-
-							// E tem que ser declarado
-							// IFuture<Double> futDouble =
-							// followedService.stoppedBeingFollowed(identifier);
-							// Double reward = futDouble.get();
 							followedService.stoppedBeingFollowed(identifier);
-
 						}
 
 						@Override
 						public void exceptionOccurred(Exception arg0) {
-
 						}
 					});
 
@@ -428,21 +398,25 @@ public class PlayerBDI implements IFollowService {
 				// Get the best ranked, until it is following the max number he
 				// can (maxFollowed)
 				for (int i = 0; i < broker.agentsRegistered.size() && i < canStillFollow; i++) {
-					System.out.println("i: " + i + ", Agents registered: " + broker.agentsRegistered.size() + ", can still follow " + canStillFollow);
+					System.out.println("i: " + i + ", Agents registered: " + broker.agentsRegistered.size()
+							+ ", can still follow " + canStillFollow);
 					Pair<IComponentIdentifier, Double> agentToAnalyze = broker.agentsRegistered.get(i);
 
 					Boolean minPerform = agentToAnalyze.getValue() >= minAgentPerformance;
 					Boolean notAlreadyFollowed = !followed.contains(agentToAnalyze.getKey());
 					Boolean notMyself = !agentToAnalyze.getKey().equals(identifier);
 
-					System.out.println(identifier + " | Going to analyze if I should follow: " + agentToAnalyze.getKey());
-					System.out.println(identifier + " He has minPerform: " + minPerform + "| He is not followed yet: " + notAlreadyFollowed + "| He is not myself: " + notMyself);
+					System.out
+							.println(identifier + " | Going to analyze if I should follow: " + agentToAnalyze.getKey());
+					System.out.println(identifier + " He has minPerform: " + minPerform + "| He is not followed yet: "
+							+ notAlreadyFollowed + "| He is not myself: " + notMyself);
 					// Will start following the Top Performing agents (they are
 					// already sorted), with the following conditions:
 					// (1) agent has at least minimum performance, (2) isn't
 					// already following (3) isn't himself
 
-					if (agentToAnalyze.getValue() >= minAgentPerformance && !followed.contains(agentToAnalyze.getKey()) && !agentToAnalyze.getKey().equals(identifier)) {
+					if (agentToAnalyze.getValue() >= minAgentPerformance && !followed.contains(agentToAnalyze.getKey())
+							&& !agentToAnalyze.getKey().equals(identifier)) {
 
 						String iden1 = broker.getAgentInfo().get(identifier).getName();
 						String iden2 = broker.getAgentInfo().get(agentToAnalyze.getKey()).getName();
@@ -479,13 +453,12 @@ public class PlayerBDI implements IFollowService {
 			// System.out.println("FIRE SALE SELL EVERYTHING MARKET CRASH: " +
 			// identifier + " " + (currentMoney + currentStockMoney));
 			if (purchases != null && !purchases.isEmpty()) {
-				for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext();) {
+				for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter
+						.hasNext();) {
 
 					Pair<IComponentIdentifier, StockHolding> pair = iter.next();
-					// TODO Agree No sense doing binary since stock probably
-					// already changed
-					// value
-					Pair<IComponentIdentifier, Double> companyStockPair = broker.getPairLinear(pair.getKey(), broker.stockPrices);
+					Pair<IComponentIdentifier, Double> companyStockPair = broker.getPairLinear(pair.getKey(),
+							broker.stockPrices);
 
 					StockHolding p = pair.getValue();
 					Double stockValue = companyStockPair.getValue();
@@ -495,7 +468,8 @@ public class PlayerBDI implements IFollowService {
 				}
 				updateStockMoney();
 				broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
-				System.out.println("Sold All Stock: " + identifier + "  " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
+				System.out.println("Sold All Stock: " + identifier + "  " + purchases.size() + "   " + currentMoney
+						+ "   " + currentStockMoney + "   " + goalMoney);
 			}
 		}
 
@@ -523,7 +497,8 @@ public class PlayerBDI implements IFollowService {
 		List<Pair<IComponentIdentifier, Double>> coefvarList;
 
 		if ((coefvarList = broker.stockPricesCoefVar) != null && !coefvarList.isEmpty()) {
-			for (ListIterator<Pair<IComponentIdentifier, Double>> iter = coefvarList.listIterator(coefvarList.size()); iter.hasPrevious();) {
+			for (ListIterator<Pair<IComponentIdentifier, Double>> iter = coefvarList
+					.listIterator(coefvarList.size()); iter.hasPrevious();) {
 				Pair<IComponentIdentifier, Double> companyCoefVar = iter.previous();
 
 				if (companyCoefVar != null && notInList(companyCoefVar.getKey(), purchases)) {
@@ -532,13 +507,17 @@ public class PlayerBDI implements IFollowService {
 						break;
 					}
 
-					Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(companyCoefVar.getKey(), broker.stockPrices);
+					Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(companyCoefVar.getKey(),
+							broker.stockPrices);
 					System.out.println(pair.getKey().toString() + " sss " + pair.getKey().getLocalName());
-					StockHolding holding = new StockHolding(maxSpendMoney, pair.getValue(), internalAccess.getComponentIdentifier(), broker.getCompanyNames().get(pair.getKey()));
+					StockHolding holding = new StockHolding(maxSpendMoney, pair.getValue(),
+							internalAccess.getComponentIdentifier(), broker.getCompanyNames().get(pair.getKey()));
 
-					System.out.println("WE CAN BUY X STOCK: " + holding.getNumberOfStocks() + "  MaxSpendMoney: " + maxSpendMoney + "   Stock Price: " + pair.getValue());
+					System.out.println("WE CAN BUY X STOCK: " + holding.getNumberOfStocks() + "  MaxSpendMoney: "
+							+ maxSpendMoney + "   Stock Price: " + pair.getValue());
 					if (holding.getNumberOfStocks() > 0)
-						possiblePurchases.add(new Pair<IComponentIdentifier, StockHolding>(companyCoefVar.getKey(), holding));
+						possiblePurchases
+								.add(new Pair<IComponentIdentifier, StockHolding>(companyCoefVar.getKey(), holding));
 				}
 			}
 		}
@@ -558,9 +537,9 @@ public class PlayerBDI implements IFollowService {
 	}
 
 	public void buyStock(Pair<IComponentIdentifier, StockHolding> bestStock) {
-		// TODO BUY STOCk
+		// BUY STOCk
 		if (bestStock != null) {
-			// TODO "buys stock"
+			// "buys stock"
 			System.out.println("BUYING STOCK");
 			bestStock.getValue().setDateOfPurchase(System.currentTimeMillis());
 			currentMoney -= bestStock.getValue().getStockPurchasePrice() * bestStock.getValue().getNumberOfStocks();
@@ -572,7 +551,8 @@ public class PlayerBDI implements IFollowService {
 			AgentInfo agent = broker.getAgentInfo().get(identifier);
 			String company = broker.getCompanyNames().get(bestStock.getKey());
 
-			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val) + "€]";
+			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company
+					+ "'s stocks [" + String.format("%.2g%n", val) + "€]";
 			System.out.println(boughtStock);
 
 			AppPanel.logModel.addElement(boughtStock);
@@ -588,14 +568,14 @@ public class PlayerBDI implements IFollowService {
 			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
 			futService.addResultListener(new IResultListener<IFollowService>() {
 
-				// TODO CHECK IF DOING PROPERLY
 				@Override
 				public void resultAvailable(IFollowService toSend) {
 					double reward;
 					if ((reward = toSend.giveStockTip(company, identifier)) > 0) {
 						currentMoney += reward;
 						System.out.println("Tip from : " + identifier + " was accpeted");
-						AppPanel.logModel.addElement(broker.getAgentInfo().get(identifier).getName() + " was rewarded for tip in " + reward);
+						AppPanel.logModel.addElement(
+								broker.getAgentInfo().get(identifier).getName() + " was rewarded for tip in " + reward);
 					} else
 						System.out.println("Tip Rejected");
 				}
@@ -610,21 +590,19 @@ public class PlayerBDI implements IFollowService {
 
 	public synchronized IFuture<Boolean> sellStocks() {
 		if (purchases != null && !purchases.isEmpty()) {
-			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter.hasNext();) {
+			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = purchases.listIterator(); iter
+					.hasNext();) {
 
 				Pair<IComponentIdentifier, StockHolding> pair = iter.next();
-				// TODO Agree No sense doing binary since stock probably already
-				// changed
-				// value
-				Pair<IComponentIdentifier, Double> companyStockPair = broker.getPairLinear(pair.getKey(), broker.stockPrices);
+				Pair<IComponentIdentifier, Double> companyStockPair = broker.getPairLinear(pair.getKey(),
+						broker.stockPrices);
 
 				StockHolding p = pair.getValue();
 				Double stockValue = companyStockPair.getValue();
-				// TODO check if ratio formula is correct
 				double ratio = stockValue / p.getStockPurchasePrice();
 
 				if (lowerBoundOfSalesInterval >= ratio && ratio <= upperBoundOfSalesInterval) {
-					// TODO sells the stock
+					// sells the stock
 					currentMoney += stockValue * p.getNumberOfStocks();
 					iter.remove();
 
@@ -632,7 +610,8 @@ public class PlayerBDI implements IFollowService {
 					AgentInfo agent = broker.getAgentInfo().get(identifier);
 					String company = broker.getCompanyNames().get(pair.getKey());
 
-					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val) + "€]";
+					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company
+							+ "'s stocks [" + String.format("%.2g%n", val) + "€]";
 					System.out.print(soldStock);
 					AppPanel.logModel.addElement(soldStock);
 
@@ -654,7 +633,8 @@ public class PlayerBDI implements IFollowService {
 			Pair<IComponentIdentifier, StockHolding> agentPair = iter.next();
 			IComponentIdentifier companyToUpdate = agentPair.getKey();
 
-			for (ListIterator<Pair<IComponentIdentifier, Double>> iter2 = currentStockPrices.listIterator(); iter2.hasNext();) {
+			for (ListIterator<Pair<IComponentIdentifier, Double>> iter2 = currentStockPrices.listIterator(); iter2
+					.hasNext();) {
 				Pair<IComponentIdentifier, Double> companyPair = iter2.next();
 				if (companyToUpdate.equals(companyPair.getKey())) {
 					StockHolding stockHolding = agentPair.getValue();
@@ -679,7 +659,8 @@ public class PlayerBDI implements IFollowService {
 	 */
 
 	// Company ID Purchase Details
-	public Pair<IComponentIdentifier, StockHolding> pickBestStock(List<Pair<IComponentIdentifier, StockHolding>> possiblePurchases) {
+	public Pair<IComponentIdentifier, StockHolding> pickBestStock(
+			List<Pair<IComponentIdentifier, StockHolding>> possiblePurchases) {
 		// System.out.println("Pick Best Stock");
 		// Need to go through all the possible purchases and pick the best, so
 		// give them a score, check if higher than currentMax if not keep going
@@ -688,7 +669,8 @@ public class PlayerBDI implements IFollowService {
 
 		if (possiblePurchases != null && !possiblePurchases.isEmpty()) {
 			double currentMaxValue = -1;
-			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = possiblePurchases.listIterator(); iter.hasNext();) {
+			for (ListIterator<Pair<IComponentIdentifier, StockHolding>> iter = possiblePurchases.listIterator(); iter
+					.hasNext();) {
 
 				Pair<IComponentIdentifier, StockHolding> currentPair = iter.next();
 				double localMaxValue = rateCompany(currentPair.getKey(), currentPair.getValue());
@@ -719,11 +701,10 @@ public class PlayerBDI implements IFollowService {
 	}
 
 	public void agentReachedGoal() {
-		// TODO João Acrescentar Aqui uma entre no log a dizer que o Agente
-		// acabou e chegou ao objectivo
 
 		broker.updateAgentRatio(identifier, 0.0);
-		AppPanel.logModel.addElement("Agent: " + broker.getAgentInfo().get(identifier).getName() + " has reached the end, it has: " + currentMoney + "$ and it needed " + goalMoney + "$");
+		AppPanel.logModel.addElement("Agent: " + broker.getAgentInfo().get(identifier).getName()
+				+ " has reached the end, it has: " + currentMoney + "$ and it needed " + goalMoney + "$");
 
 		for (IComponentIdentifier hero : followed) {
 
@@ -733,7 +714,6 @@ public class PlayerBDI implements IFollowService {
 			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
 			futService.addResultListener(new IResultListener<IFollowService>() {
 
-				// TODO CHECK IF DOING PROPERLY
 				@Override
 				public void resultAvailable(IFollowService heroToSend) {
 					heroToSend.stoppedBeingFollowed(identifier);
@@ -758,7 +738,6 @@ public class PlayerBDI implements IFollowService {
 			IFuture<IFollowService> futService = SServiceProvider.getService(extAcc, IFollowService.class);
 			futService.addResultListener(new IResultListener<IFollowService>() {
 
-				// TODO CHECK IF DOING PROPERLY
 				@Override
 				public void resultAvailable(IFollowService heroToSend) {
 					heroToSend.stopFollowingMe(identifier);
@@ -779,7 +758,8 @@ public class PlayerBDI implements IFollowService {
 	public IFuture<Boolean> startedBeingFollowed(IComponentIdentifier follower) {
 
 		if (followers.contains(follower)) {
-			System.out.println(identifier + " not successful added " + follower + " to his followers, already was there.");
+			System.out.println(
+					identifier + " not successful added " + follower + " to his followers, already was there.");
 			return new Future<Boolean>(false);
 		} else {
 			System.out.println(identifier + " successfuly started being followed by: " + follower);
@@ -792,11 +772,13 @@ public class PlayerBDI implements IFollowService {
 	public IFuture<Boolean> stoppedBeingFollowed(IComponentIdentifier follower) {
 		if (followers.contains(follower)) {
 			System.out.println(identifier + " successfuly stopped being followed by: " + follower);
-			AppPanel.logModel.addElement(broker.getAgentInfo().get(identifier).getName() + " successfuly stopped being followed by: " + broker.getAgentInfo().get(follower).getName());
+			AppPanel.logModel.addElement(broker.getAgentInfo().get(identifier).getName()
+					+ " successfuly stopped being followed by: " + broker.getAgentInfo().get(follower).getName());
 			followers.remove(follower);
 			return new Future<Boolean>(true);
 		} else {
-			System.out.println(identifier + " not successful removed " + follower + " from his followers, already wasn't there.");
+			System.out.println(
+					identifier + " not successful removed " + follower + " from his followers, already wasn't there.");
 			return new Future<Boolean>(false);
 		}
 	}
@@ -817,7 +799,8 @@ public class PlayerBDI implements IFollowService {
 			Pair<IComponentIdentifier, Double> pair = broker.getPairLinear(company, broker.stockPrices);
 
 			Pair<IComponentIdentifier, StockHolding> purchase = new Pair<IComponentIdentifier, StockHolding>(company,
-					new StockHolding(currentMoney * maxMoneySpentOnPurchase, pair.getValue(), identifier, broker.getCompanyNames().get(pair.getKey())));
+					new StockHolding(currentMoney * maxMoneySpentOnPurchase, pair.getValue(), identifier,
+							broker.getCompanyNames().get(pair.getKey())));
 
 			buyStock(purchase);
 
@@ -826,7 +809,8 @@ public class PlayerBDI implements IFollowService {
 
 			broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
 			System.out.println("Reward for Tip is : " + reward);
-			String acceptedTip = broker.getAgentInfo().get(identifier).getName() + " accepted Tip from " + broker.getAgentInfo().get(sender).getName() + " for company: "
+			String acceptedTip = broker.getAgentInfo().get(identifier).getName() + " accepted Tip from "
+					+ broker.getAgentInfo().get(sender).getName() + " for company: "
 					+ broker.getCompanyNames().get(company) + "]";
 			AppPanel.logModel.addElement(acceptedTip);
 
@@ -842,12 +826,14 @@ public class PlayerBDI implements IFollowService {
 		// TODO
 		if (followed.contains(tragicHero)) {
 			System.out.println(tragicHero + " successfuly stopped being followed by: " + identifier);
-			AppPanel.logModel.addElement(broker.getAgentInfo().get(tragicHero).getName() + " successfuly stopped being followed by: " + broker.getAgentInfo().get(identifier).getName());
+			AppPanel.logModel.addElement(broker.getAgentInfo().get(tragicHero).getName()
+					+ " successfuly stopped being followed by: " + broker.getAgentInfo().get(identifier).getName());
 
 			followed.remove(tragicHero);
 			return new Future<Boolean>(true);
 		} else {
-			System.out.println(tragicHero + " not successful removed " + identifier + " from his followers, already wasn't there.");
+			System.out.println(tragicHero + " not successful removed " + identifier
+					+ " from his followers, already wasn't there.");
 			return new Future<Boolean>(false);
 		}
 	}

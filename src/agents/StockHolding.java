@@ -12,10 +12,6 @@ public class StockHolding extends CloneObj {
 	private String name;
 
 	/**
-	 * Pretty much if a purchase is still valid, we need this to keep track of
-	 * everything happening (The question is, are agents will be independent
-	 * threads so, how to keep track of everything, an Agent notifies the
-	 * company it made the sale?
 	 */
 
 	public StockHolding(double maxSpendingMoney, double stockPrice, IComponentIdentifier buyer, String name) {
@@ -37,8 +33,8 @@ public class StockHolding extends CloneObj {
 
 	@Override
 	public String toString() {
-		return "StockHolding [buyer=" + buyer + ", stockPurchasePrice=" + stockPurchasePrice + ", currentStockPrice=" + currentStockPrice + ", numberOfStocks=" + numberOfStocks + ", dateOfPurchase="
-				+ dateOfPurchase + "]";
+		return "StockHolding [buyer=" + buyer + ", stockPurchasePrice=" + stockPurchasePrice + ", currentStockPrice="
+				+ currentStockPrice + ", numberOfStocks=" + numberOfStocks + ", dateOfPurchase=" + dateOfPurchase + "]";
 	}
 
 	/**
