@@ -370,9 +370,10 @@ public class StandardBDI implements IFollowService {
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
 					String iden1 = broker.getAgentNames().get(identifier);
 					String iden2 = broker.getAgentNames().get(followedAgent);
-					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
+					String stopedFollowing = iden1 + " stoped following " + iden2 + "[Performance : " + agentPerformance + "]";
 					AppPanel.logModel.addElement(stopedFollowing);
 					
+					AppFrame.addToAgentLog(iden1, stopedFollowing);
 					
 					/**************************************************************
 					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
@@ -441,6 +442,7 @@ public class StandardBDI implements IFollowService {
 								
 						String startedFollowing = iden1 + " started following " + iden2;
 						AppPanel.logModel.addElement(startedFollowing);
+						AppFrame.addToAgentLog(iden1, startedFollowing);
 						
 						
 						followed.add(agentToAnalyze.getKey());
@@ -568,6 +570,7 @@ public class StandardBDI implements IFollowService {
 					
 			String boughtStock = agent + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
 			AppPanel.logModel.addElement(boughtStock);
+			AppFrame.addToAgentLog(agent, boughtStock);
 		}
 	}
 
@@ -624,6 +627,7 @@ public class StandardBDI implements IFollowService {
 							
 					String soldStock = agent + " sold " + p.getNumberOfStocks()  + " " + company + "'s stocks [" + val + "€]";
 					AppPanel.logModel.addElement(soldStock);
+					AppFrame.addToAgentLog(agent, soldStock);
 
 				}
 			}
@@ -851,5 +855,20 @@ public class StandardBDI implements IFollowService {
 			return new Future<Boolean>(false);
 		}
 	}
+
+	@Override
+	public Double getCurrentMoney(IComponentIdentifier agent) {
+		// TODO Auto-generated method stub
+		//return agent.
+		return null;
+	}
+
+	@Override
+	public Double getCurrentStocks(IComponentIdentifier agent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
 
 }
