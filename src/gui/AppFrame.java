@@ -173,7 +173,7 @@ public class AppFrame extends JFrame {
 			final JRadioButton normalStock = new JRadioButton("Normal");
 			final JRadioButton volatileStock = new JRadioButton("Volatile");
 			final JRadioButton veryVolatileStock = new JRadioButton("Very Volatile");
-			
+
 			ButtonGroup group = new ButtonGroup();
 			group.add(normalStock);
 			group.add(volatileStock);
@@ -202,9 +202,7 @@ public class AppFrame extends JFrame {
 
 				double stockValue_f = Double.parseDouble(stockValue.getText());
 
-				Main.ci = new CreationInfo(
-						SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
-								new Object[] { companyName.getText(), stockValue_f * 1.0, stocktype }));
+				Main.ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" }, new Object[] { companyName.getText(), stockValue_f * 1.0, stocktype }));
 				Main.tupleFut = Main.cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				AppPanel.companyModel.addElement(companyName.getText());
@@ -224,16 +222,14 @@ public class AppFrame extends JFrame {
 
 	public class AgentInfo {
 		public String name;
-		String type;
 		double startMoney = 0.0;
 		double goalMoney = 0.0;
 		List<String> agentLog;
 		public Double currentMoney = 0.0;
 		public Double stockMoney = 0.0;
 
-		public AgentInfo(String name, String type, double startMoney, double goalMoney) {
+		public AgentInfo(String name, double startMoney, double goalMoney) {
 			this.name = name;
-			this.type = type;
 			this.startMoney = startMoney;
 			this.goalMoney = goalMoney;
 			this.agentLog = new ArrayList<String>();
@@ -248,21 +244,6 @@ public class AppFrame extends JFrame {
 			panel.setLayout((LayoutManager) new BoxLayout(panel, BoxLayout.Y_AXIS));
 			panel.add(new JLabel("Name"));
 			panel.add(agentName);
-			panel.add(Box.createVerticalStrut(15));
-
-			panel.add(new JLabel("Agent Type"));
-			final JRadioButton cautious = new JRadioButton("Cautious");
-			final JRadioButton normal = new JRadioButton("regular");
-			final JRadioButton greedy = new JRadioButton("Greedy");
-			ButtonGroup group = new ButtonGroup();
-			
-			group.add(cautious);
-			group.add(normal);
-			group.add(greedy);
-			
-			panel.add(cautious);
-			panel.add(normal);
-			panel.add(greedy);
 			panel.add(Box.createVerticalStrut(15));
 
 			JTextField startingMoney = new JTextField(5);
@@ -300,8 +281,7 @@ public class AppFrame extends JFrame {
 			panel.add(minAgentPerformance);
 			panel.add(Box.createVerticalStrut(15));
 
-			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent",
-					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.OK_OPTION) {
 
 				// Debug Stuff
@@ -313,19 +293,6 @@ public class AppFrame extends JFrame {
 				System.out.println("lowerBoundOfSalesInterval: " + lowerBoundOfSalesInterval.getText());
 				System.out.println("upperBoundOfSalesInterval: " + upperBoundOfSalesInterval.getText());
 				System.out.println("minAgentPerformance: " + minAgentPerformance.getText());
-
-				String agentType = "normal";
-				if (cautious.isSelected()) {
-					agentType = "cautious";
-					System.out.println("cautious");
-				}
-
-				else if (normal.isSelected())
-					System.out.println("normal");
-				else if (greedy.isSelected()) {
-					System.out.println("greedy");
-					agentType = "greedy";
-				}
 
 				// Convert values
 
@@ -339,16 +306,14 @@ public class AppFrame extends JFrame {
 
 				// Create an agent
 				Main.ci = new CreationInfo(SUtil.createHashMap(
-						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk",
-								"lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug",
-								"maxMoneySpentOnPurchase", "minAgentPerformance" },
-						new Object[] { Main.platform, agentName.getText(), startingMoney_f * 1.0, goalMoney_f * 1.0,
-								maxRisk_f * 1.0, lowerBoundOfSalesInterval_f * 1.0, upperBoundOfSalesInterval_f * 1.0,
-								true, maxMoneySpentOnPurchase_f * 1.0, minAgentPerformance_f * 1.0 }));
+						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk", "lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug", "maxMoneySpentOnPurchase",
+								"minAgentPerformance" },
+						new Object[] { Main.platform, agentName.getText(), startingMoney_f * 1.0, goalMoney_f * 1.0, maxRisk_f * 1.0, lowerBoundOfSalesInterval_f * 1.0,
+								upperBoundOfSalesInterval_f * 1.0, true, maxMoneySpentOnPurchase_f * 1.0, minAgentPerformance_f * 1.0 }));
 				Main.tupleFut = Main.cms.createComponent("myPlayerBDI", "agents.PlayerBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				// Add To List
-				agentList.add(new AgentInfo(agentName.getText(), agentType, startingMoney_f, goalMoney_f));
+				agentList.add(new AgentInfo(agentName.getText(), startingMoney_f, goalMoney_f));
 				AppPanel.agentModel.addElement(agentName.getText());
 
 			}

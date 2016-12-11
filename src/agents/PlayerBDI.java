@@ -572,7 +572,7 @@ public class PlayerBDI implements IFollowService {
 			AgentInfo agent = broker.getAgentInfo().get(identifier);
 			String company = broker.getCompanyNames().get(bestStock.getKey());
 
-			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val)+ "€]";
+			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val) + "€]";
 			System.out.println(boughtStock);
 
 			AppPanel.logModel.addElement(boughtStock);
@@ -595,6 +595,7 @@ public class PlayerBDI implements IFollowService {
 					if ((reward = toSend.giveStockTip(company, identifier)) > 0) {
 						currentMoney += reward;
 						System.out.println("Tip from : " + identifier + " was accpeted");
+						AppPanel.logModel.addElement(broker.getAgentInfo().get(identifier).getName() + " was rewarded for tip in " + reward);
 					} else
 						System.out.println("Tip Rejected");
 				}
@@ -631,7 +632,7 @@ public class PlayerBDI implements IFollowService {
 					AgentInfo agent = broker.getAgentInfo().get(identifier);
 					String company = broker.getCompanyNames().get(pair.getKey());
 
-					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val ) + "€]";
+					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val) + "€]";
 					System.out.print(soldStock);
 					AppPanel.logModel.addElement(soldStock);
 
@@ -791,6 +792,7 @@ public class PlayerBDI implements IFollowService {
 	public IFuture<Boolean> stoppedBeingFollowed(IComponentIdentifier follower) {
 		if (followers.contains(follower)) {
 			System.out.println(identifier + " successfuly stopped being followed by: " + follower);
+			AppPanel.logModel.addElement(broker.getAgentInfo().get(identifier).getName() + " successfuly stopped being followed by: " + broker.getAgentInfo().get(follower).getName());
 			followers.remove(follower);
 			return new Future<Boolean>(true);
 		} else {
@@ -840,6 +842,8 @@ public class PlayerBDI implements IFollowService {
 		// TODO
 		if (followed.contains(tragicHero)) {
 			System.out.println(tragicHero + " successfuly stopped being followed by: " + identifier);
+			AppPanel.logModel.addElement(broker.getAgentInfo().get(tragicHero).getName() + " successfuly stopped being followed by: " + broker.getAgentInfo().get(identifier).getName());
+
 			followed.remove(tragicHero);
 			return new Future<Boolean>(true);
 		} else {

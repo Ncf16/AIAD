@@ -107,9 +107,6 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		for (AgentInfo temp : AppFrame.agentList) {
 			if (temp.name.equals(agentName)) {
 
-				panel.add(new JLabel("Agent Type: " + temp.type));
-				panel.add(Box.createVerticalStrut(15)); // a spacer
-
 				panel.add(new JLabel("Starting Money: " + temp.startMoney + "€"));
 				panel.add(Box.createVerticalStrut(15));
 
@@ -167,12 +164,13 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		actionLog.setSelectedIndex(0);
 		actionLog.addListSelectionListener(this);
 		actionLog.setVisibleRowCount(15);
-		
+
 		JScrollPane listScrollPane = new JScrollPane(actionLog);
-		/*Dimension d = actionLog.getPreferredSize();
-		d.width = 200;
-		listScrollPane.setPreferredSize(d);*/
-		//JList.VERTICAL_WRAP
+		/*
+		 * Dimension d = actionLog.getPreferredSize(); d.width = 200;
+		 * listScrollPane.setPreferredSize(d);
+		 */
+		// JList.VERTICAL_WRAP
 		add(listScrollPane, BorderLayout.EAST);
 	}
 
