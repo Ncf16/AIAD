@@ -368,7 +368,8 @@ public class StandardBDI implements IFollowService {
 				if (agentPerformance < minAgentPerformance) {
 
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
-					
+					String iden1 = broker.getAgentNames().get(identifier);
+					String iden2 = broker.getAgentNames().get(followedAgent);
 					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
 					AppPanel.logModel.addElement(stopedFollowing);
 					
@@ -435,7 +436,10 @@ public class StandardBDI implements IFollowService {
 
 					if (agentToAnalyze.getValue() >= minAgentPerformance && !followed.contains(agentToAnalyze.getKey()) && !agentToAnalyze.getKey().equals(identifier)) {
 						
-						String startedFollowing = identifier + " started following " + agentToAnalyze.getKey();
+						String iden1 = broker.getAgentNames().get(identifier);
+						String iden2 = broker.getAgentNames().get(agentToAnalyze.getKey());
+								
+						String startedFollowing = iden1 + " started following " + iden2;
 						AppPanel.logModel.addElement(startedFollowing);
 						
 						
@@ -557,6 +561,13 @@ public class StandardBDI implements IFollowService {
 			purchases.add(bestStock);
 			updateStockMoney();
 			sendTipToFollowers(bestStock.getKey());
+			
+			double val = bestStock.getValue().getStockPurchasePrice() * bestStock.getValue().getNumberOfStocks();
+			String agent = broker.getAgentNames().get(identifier);
+			String company = broker.getCompanyNames().get(bestStock.getKey());
+					
+			String boughtStock = agent + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+			AppPanel.logModel.addElement(boughtStock);
 		}
 	}
 
@@ -606,6 +617,13 @@ public class StandardBDI implements IFollowService {
 					// TODO sells the stock
 					currentMoney += stockValue * p.getNumberOfStocks();
 					iter.remove();
+					
+					double val = stockValue * p.getNumberOfStocks();
+					String agent = broker.getAgentNames().get(identifier);
+					String company = broker.getCompanyNames().get(pair.getKey());
+							
+					String soldStock = agent + " sold " + p.getNumberOfStocks()  + " " + company + "'s stocks [" + val + "€]";
+					AppPanel.logModel.addElement(soldStock);
 
 				}
 			}

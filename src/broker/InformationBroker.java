@@ -26,7 +26,7 @@ public class InformationBroker {
 	private IExternalAccess platform;
 
 	private HashMap<IComponentIdentifier, String> companyNames = new HashMap<IComponentIdentifier, String>();
-	private HashMap<IComponentIdentifier, String> agentNames = new HashMap<IComponentIdentifier, String>();
+	public HashMap<IComponentIdentifier, String> agentNames = new HashMap<IComponentIdentifier, String>();
 
 	private IComponentManagementService cms;
 
