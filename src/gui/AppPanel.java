@@ -168,12 +168,11 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		actionLog.addListSelectionListener(this);
 		actionLog.setVisibleRowCount(15);
 		
-
 		JScrollPane listScrollPane = new JScrollPane(actionLog);
 		/*Dimension d = actionLog.getPreferredSize();
 		d.width = 200;
 		listScrollPane.setPreferredSize(d);*/
-		actionLog.setPreferredSize(new Dimension(200, 200));
+		//JList.VERTICAL_WRAP
 		add(listScrollPane, BorderLayout.EAST);
 	}
 

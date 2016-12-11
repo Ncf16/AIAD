@@ -572,7 +572,7 @@ public class PlayerBDI implements IFollowService {
 			AgentInfo agent = broker.getAgentInfo().get(identifier);
 			String company = broker.getCompanyNames().get(bestStock.getKey());
 
-			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+			String boughtStock = agent.getName() + " bought " + bestStock.getValue().getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val)+ "€]";
 			System.out.println(boughtStock);
 
 			AppPanel.logModel.addElement(boughtStock);
@@ -631,7 +631,7 @@ public class PlayerBDI implements IFollowService {
 					AgentInfo agent = broker.getAgentInfo().get(identifier);
 					String company = broker.getCompanyNames().get(pair.getKey());
 
-					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + val + "€]";
+					String soldStock = agent.getName() + " sold " + p.getNumberOfStocks() + " " + company + "'s stocks [" + String.format("%.2g%n", val ) + "€]";
 					System.out.print(soldStock);
 					AppPanel.logModel.addElement(soldStock);
 
