@@ -202,13 +202,14 @@ public class PlayerBDI implements IFollowService {
 			@Override
 			public void run() {
 
-				updateStockMoney();
+				if (!goalAchieved) {
+					updateStockMoney();
+					Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
 
-				Double successRatio = (currentMoney + currentStockMoney) / startingMoney;
+					System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
+					broker.updateAgentRatio(identifier, successRatio);
 
-				System.out.println(identifier + " | Current Money: " + currentMoney + ", Current Stock Money: " + currentStockMoney + " | New success ratio: " + successRatio);
-				broker.updateAgentRatio(identifier, successRatio);
-
+				}
 			}
 		}, START_TASK_AFTER, REPEAT_TASK_AFTER, TimeUnit.MILLISECONDS);
 
@@ -720,8 +721,9 @@ public class PlayerBDI implements IFollowService {
 		// TODO João Acrescentar Aqui uma entre no log a dizer que o Agente
 		// acabou e chegou ao objectivo
 
-		if (goalAchieved)
-			AppPanel.logModel.addElement("Agent: " + broker.getAgentInfo().get(identifier).getName() + " has reached the end, it has: " + currentMoney + "$ and it needed " + goalMoney + "$");
+		broker.updateAgentRatio(identifier, 0.0);
+		AppPanel.logModel.addElement("Agent: " + broker.getAgentInfo().get(identifier).getName() + " has reached the end, it has: " + currentMoney + "$ and it needed " + goalMoney + "$");
+
 		for (IComponentIdentifier hero : followed) {
 
 			IFuture<IExternalAccess> futExt = cms.getExternalAccess(hero);

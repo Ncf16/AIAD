@@ -289,12 +289,13 @@ public class InformationBroker {
 		return agentInfo;
 	}
 
-	public void updateAgentInfo(IComponentIdentifier identifier, Double currentMoney,Double stockMoney) {
+	public void updateAgentInfo(IComponentIdentifier identifier, Double currentMoney, Double stockMoney) {
 		if (agentInfo.containsKey(identifier)) {
+			System.out.println("Agent Has ID: " + identifier + "  currentMoney: " + currentMoney + "   " + stockMoney);
 			agentInfo.get(identifier).setCurrentMoney(currentMoney);
 			agentInfo.get(identifier).setStockMoney(stockMoney);
-			for (AppFrame.AgentInfo temp : AppFrame.agentList){
-				if (temp.name.equals(agentInfo.get(identifier).getName())){
+			for (AppFrame.AgentInfo temp : AppFrame.agentList) {
+				if (temp.name.equals(agentInfo.get(identifier).getName())) {
 					temp.currentMoney = currentMoney;
 					temp.stockMoney = stockMoney;
 				}
