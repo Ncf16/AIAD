@@ -72,7 +72,6 @@ public class CompanyBDI extends BaseAgent {
 				companyStock.changePrice();
 				// System.out.println("Price is : " +
 				// companyStock.getStockPrice() + " | " + identifier);
-				System.out.println(" Company NAME: " + broker.getCompanyNames().get(identifier));
 				broker.addCompanyInfo(new Pair<IComponentIdentifier, ArrayList<Double>>(internalAccess.getComponentIdentifier(), companyStock.getOldValues()), companyName);
 
 				return IFuture.DONE;

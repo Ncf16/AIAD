@@ -410,6 +410,7 @@ public class PlayerBDI implements IFollowService {
 							.println(identifier + " | Going to analyze if I should follow: " + agentToAnalyze.getKey());
 					System.out.println(identifier + " He has minPerform: " + minPerform + "| He is not followed yet: "
 							+ notAlreadyFollowed + "| He is not myself: " + notMyself);
+
 					// Will start following the Top Performing agents (they are
 					// already sorted), with the following conditions:
 					// (1) agent has at least minimum performance, (2) isn't
