@@ -3,7 +3,6 @@ package main;
 import java.util.ArrayList;
 import java.util.Map;
 
-import agents.PlayerBDI;
 import broker.InformationBroker;
 import broker.Pair;
 import company.Stock;
@@ -79,14 +78,14 @@ public class Main {
 		// "name", "startingMoney", "goalMoney", "debug" }, new Object[] {
 		// platform, "A2", 50000.0, 52000.0, true }));
 		// tupleFut = cms.createComponent("myStandardBDI",
-		// "agents.StandardBDI.class", ci);
+		// "agents.PlayerBDI.class", ci);
 		// cid = tupleFut.getFirstResult();
 
 		// ci = new CreationInfo(SUtil.createHashMap(new String[] { "platform",
 		// "name", "startingMoney", "goalMoney" }, new Object[] { platform,
 		// "A3", 500.0, 600.0}));
 		// tupleFut = cms.createComponent("myStandardBDI",
-		// "agents.StandardBDI.class", ci);
+		// "agents.PlayerBDI.class", ci);
 		// cid = tupleFut.getFirstResult();
 
 /*		ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
