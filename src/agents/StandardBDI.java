@@ -316,7 +316,7 @@ public class StandardBDI implements IFollowService {
 				sellStocks();
 				buyStock(pickBestStock(createStockList()));
 			}
-			broker.updateAgentInfo(identifier, currentMoney);
+			broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
 			/***********
 			 * TRIGGER A CHECK TO SEE IF GOAL WAS MET. IF NOT, RUNS ANOTHER PLAN
 			 *****************/
@@ -486,7 +486,7 @@ public class StandardBDI implements IFollowService {
 
 				}
 				updateStockMoney();
-				broker.updateAgentInfo(identifier, currentMoney);
+				broker.updateAgentInfo(identifier, currentMoney,currentStockMoney);
 				System.out.println("THE END OF SALE CHECK VALUES: " + purchases.size() + "   " + currentMoney + "   " + currentStockMoney + "   " + goalMoney);
 			}
 		}
@@ -829,7 +829,7 @@ public class StandardBDI implements IFollowService {
 			double reward;
 			currentMoney -= (reward = currentMoney * REWARD_PER_TIP_PERCENTAGE);
 
-			broker.updateAgentInfo(identifier, currentMoney);
+			broker.updateAgentInfo(identifier, currentMoney, currentStockMoney);
 			System.out.println("REWARD IS : " + reward);
 
 			return reward;

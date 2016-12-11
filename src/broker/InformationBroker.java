@@ -288,9 +288,10 @@ public class InformationBroker {
 		return agentInfo;
 	}
 
-	public void updateAgentInfo(IComponentIdentifier identifier, Double currentMoney) {
+	public void updateAgentInfo(IComponentIdentifier identifier, Double currentMoney,Double stockMoney) {
 		if (agentInfo.containsKey(identifier)) {
 			agentInfo.get(identifier).setCurrentMoney(currentMoney);
+			agentInfo.get(identifier).setStockMoney(stockMoney);
 		}
 
 	}

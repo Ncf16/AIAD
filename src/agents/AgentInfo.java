@@ -9,12 +9,13 @@ public class AgentInfo {
 	private String name;
 	private double currentMoney;
 	private double startMoney;
-	private ArrayList<Pair<IComponentIdentifier, StockHolding>> purchases = new ArrayList<Pair<IComponentIdentifier, StockHolding>>();
+	private double stockMoney;
 
 	public AgentInfo(String name, double currentMoney) {
 		this.name = name;
 		this.currentMoney = currentMoney;
 		this.startMoney = currentMoney;
+		this.stockMoney = 0.0;
 	}
 
 	public String getName() {
@@ -39,6 +40,14 @@ public class AgentInfo {
 
 	public void setStartMoney(double startMoney) {
 		this.startMoney = startMoney;
+	}
+
+	public double getStockMoney() {
+		return stockMoney;
+	}
+
+	public void setStockMoney(double stockMoney) {
+		this.stockMoney = stockMoney;
 	}
 
 }
