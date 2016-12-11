@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import broker.InformationBroker;
 import broker.Pair;
+import gui.AppFrame;
+import gui.AppPanel;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.GoalRecurCondition;
@@ -340,6 +342,7 @@ public class StandardBDI implements IFollowService {
 
 			System.out.println("I am: " + identifier + " and my current followers are: " + followers);
 			System.out.println("I am: " + identifier + " and I am following: " + followed);
+			
 
 			// Discard Agents that have been unsuccessful
 			discardUnsuccessful(agentsRegistered);
@@ -365,7 +368,11 @@ public class StandardBDI implements IFollowService {
 				if (agentPerformance < minAgentPerformance) {
 
 					System.out.println("Stopped following: " + followedAgent + ", its performance was: " + agentPerformance);
-
+					
+					String stopedFollowing = identifier + " stoped following " + followedAgent + "[Performance : " + agentPerformance + "]";
+					AppPanel.logModel.addElement(stopedFollowing);
+					
+					
 					/**************************************************************
 					 * COMMUNICATE THAT WE STOPPED FOLLOWING THROUGH THE SERVICE
 					 * *
@@ -427,7 +434,11 @@ public class StandardBDI implements IFollowService {
 					// already following (3) isn't himself
 
 					if (agentToAnalyze.getValue() >= minAgentPerformance && !followed.contains(agentToAnalyze.getKey()) && !agentToAnalyze.getKey().equals(identifier)) {
-
+						
+						String startedFollowing = identifier + " started following " + agentToAnalyze.getKey();
+						AppPanel.logModel.addElement(startedFollowing);
+						
+						
 						followed.add(agentToAnalyze.getKey());
 
 						IFuture<IExternalAccess> futExt = cms.getExternalAccess(agentToAnalyze.getKey());
@@ -546,7 +557,6 @@ public class StandardBDI implements IFollowService {
 			purchases.add(bestStock);
 			updateStockMoney();
 			sendTipToFollowers(bestStock.getKey());
-
 		}
 	}
 

@@ -26,8 +26,12 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 	private Image logo;
 	private boolean showLogo = true;
 
-	private JList agentList;
+	public static DefaultListModel agentModel;
+	public static DefaultListModel companyModel;
+	public static DefaultListModel logModel;
+	
 	private JList companyList;
+	private JList agentList;
 	private JList actionLog;
 
 	public AppPanel() {
@@ -65,15 +69,9 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 	}
 
 	public void createAgentList() {
-		DefaultListModel listModel = new DefaultListModel();
-		listModel.addElement("Agent1");
-		listModel.addElement("Agent2");
-		listModel.addElement("Agent3");
-		listModel.addElement("Agent3");
-		listModel.addElement("Agent3");
-		listModel.addElement("Agent3");
-
-		agentList = new JList(listModel);
+		agentModel = new DefaultListModel();
+		agentList = new JList(agentModel);
+		
 		agentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		agentList.setSelectedIndex(0);
 		agentList.addListSelectionListener(this);
@@ -140,15 +138,10 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 	}
 
 	public void createCompanyList() {
-		DefaultListModel listModel2 = new DefaultListModel();
-		listModel2.addElement("Company1");
-		listModel2.addElement("Company1");
-		listModel2.addElement("Company1");
-		listModel2.addElement("Company1");
-		listModel2.addElement("Company1");
-		listModel2.addElement("Company1");
+		companyModel = new DefaultListModel();
 
-		companyList = new JList(listModel2);
+
+		companyList = new JList(companyModel);
 		companyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		companyList.setSelectedIndex(0);
 		companyList.addListSelectionListener(this);
@@ -159,15 +152,10 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 	}
 
 	public void createLog() {
-		DefaultListModel listModel2 = new DefaultListModel();
-		listModel2.addElement("Agent 1 bought action X");
-		listModel2.addElement("Agent 1 bought action X");
-		listModel2.addElement("Agent 1 bought action X");
-		listModel2.addElement("Agent 1 bought action X");
-		listModel2.addElement("Agent 1 bought action X");
-		listModel2.addElement("Agent 1 bought action X");
+		logModel = new DefaultListModel();
 
-		actionLog = new JList(listModel2);
+
+		actionLog = new JList(logModel);
 		actionLog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		actionLog.setSelectedIndex(0);
 		actionLog.addListSelectionListener(this);
