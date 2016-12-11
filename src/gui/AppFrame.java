@@ -12,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -166,16 +167,23 @@ public class AppFrame extends JFrame {
 			JTextField stockValue = new JTextField(5);
 			panel.add(new JLabel("Stock Value: "));
 			panel.add(stockValue);
+			panel.add(Box.createVerticalStrut(15));
 
 			panel.add(new JLabel("Stock Type"));
 			final JRadioButton normalStock = new JRadioButton("Normal");
 			final JRadioButton volatileStock = new JRadioButton("Volatile");
 			final JRadioButton veryVolatileStock = new JRadioButton("Very Volatile");
+			
+			ButtonGroup group = new ButtonGroup();
+			group.add(normalStock);
+			group.add(volatileStock);
+			group.add(veryVolatileStock);
 			panel.add(normalStock);
 			panel.add(volatileStock);
 			panel.add(veryVolatileStock);
+			panel.add(Box.createVerticalStrut(15));
 
-			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Company", JOptionPane.OK_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Company", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 			if (result == JOptionPane.OK_OPTION) {
 				// Deebuggerz
@@ -194,7 +202,9 @@ public class AppFrame extends JFrame {
 
 				double stockValue_f = Double.parseDouble(stockValue.getText());
 
-				Main.ci = new CreationInfo(SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" }, new Object[] { companyName.getText(), stockValue_f*1.0, stocktype }));
+				Main.ci = new CreationInfo(
+						SUtil.createHashMap(new String[] { "companyName", "stockPrice", "stockType" },
+								new Object[] { companyName.getText(), stockValue_f * 1.0, stocktype }));
 				Main.tupleFut = Main.cms.createComponent("myCompanyBDI", "company.CompanyBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				AppPanel.companyModel.addElement(companyName.getText());
@@ -244,39 +254,54 @@ public class AppFrame extends JFrame {
 			final JRadioButton cautious = new JRadioButton("Cautious");
 			final JRadioButton normal = new JRadioButton("regular");
 			final JRadioButton greedy = new JRadioButton("Greedy");
+			ButtonGroup group = new ButtonGroup();
+			
+			group.add(cautious);
+			group.add(normal);
+			group.add(greedy);
+			
 			panel.add(cautious);
 			panel.add(normal);
 			panel.add(greedy);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField startingMoney = new JTextField(5);
 			panel.add(new JLabel("Starting Money: "));
 			panel.add(startingMoney);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField goalMoney = new JTextField(5);
 			panel.add(new JLabel("Goal Money: "));
 			panel.add(goalMoney);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField maxRisk = new JTextField(5);
 			panel.add(new JLabel("Maximum Risk [0-1]: "));
 			panel.add(maxRisk);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField lowerBoundOfSalesInterval = new JTextField(5);
 			panel.add(new JLabel("Lower Bound of Sales Interval: "));
 			panel.add(lowerBoundOfSalesInterval);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField upperBoundOfSalesInterval = new JTextField(5);
 			panel.add(new JLabel("Upper Bound of Sales Interval: "));
 			panel.add(upperBoundOfSalesInterval);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField maxMoneySpentOnPurchase = new JTextField(5);
 			panel.add(new JLabel("Maximum Amount Spent on Purchase [0-1]: "));
 			panel.add(maxMoneySpentOnPurchase);
+			panel.add(Box.createVerticalStrut(15));
 
 			JTextField minAgentPerformance = new JTextField(5);
 			panel.add(new JLabel("Minimum Agent Performance[0-1]: "));
 			panel.add(minAgentPerformance);
+			panel.add(Box.createVerticalStrut(15));
 
-			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent", JOptionPane.OK_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, panel, "Create New Buyer Agent",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.OK_OPTION) {
 
 				// Debug Stuff
@@ -314,10 +339,12 @@ public class AppFrame extends JFrame {
 
 				// Create an agent
 				Main.ci = new CreationInfo(SUtil.createHashMap(
-						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk", "lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug", "maxMoneySpentOnPurchase",
-								"minAgentPerformance" },
-						new Object[] { Main.platform, agentName.getText(), startingMoney_f * 1.0, goalMoney_f * 1.0, maxRisk_f * 1.0, lowerBoundOfSalesInterval_f * 1.0,
-								upperBoundOfSalesInterval_f * 1.0, true, maxMoneySpentOnPurchase_f * 1.0, minAgentPerformance_f * 1.0 }));
+						new String[] { "platform", "name", "startingMoney", "goalMoney", "maxRisk",
+								"lowerBoundOfSalesInterval", "upperBoundOfSalesInterval", "debug",
+								"maxMoneySpentOnPurchase", "minAgentPerformance" },
+						new Object[] { Main.platform, agentName.getText(), startingMoney_f * 1.0, goalMoney_f * 1.0,
+								maxRisk_f * 1.0, lowerBoundOfSalesInterval_f * 1.0, upperBoundOfSalesInterval_f * 1.0,
+								true, maxMoneySpentOnPurchase_f * 1.0, minAgentPerformance_f * 1.0 }));
 				Main.tupleFut = Main.cms.createComponent("myPlayerBDI", "agents.PlayerBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				// Add To List
