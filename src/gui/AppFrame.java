@@ -1,7 +1,9 @@
 package gui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -16,7 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+
 import company.Stock.StockType;
+import gui.AppFrame.AgentInfo;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
@@ -46,6 +50,8 @@ public class AppFrame extends JFrame {
 	private JButton start, exit;
 	private JButton createAgent, createCompany;
 
+	public static ArrayList<AgentInfo> agentList;
+
 	public AppFrame() throws IOException {
 		setTitle("TradeHero");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -53,7 +59,7 @@ public class AppFrame extends JFrame {
 		panel = new AppPanel();
 		menuButtonsPanel = new JPanel();
 		simulationButtonsPanel = new JPanel();
-
+		agentList = new ArrayList<AgentInfo>();
 		setupButtons();
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		addMenuButtons();
@@ -201,6 +207,28 @@ public class AppFrame extends JFrame {
 		}
 	}
 
+	public static void addToAgentLog (String name, String log){
+		for (AgentInfo it : agentList){
+			if (it.name.equals(name)){
+				it.agentLog.add(log);
+			}
+		}
+	}
+	
+	public class AgentInfo {
+		String name, type;
+		double startMoney, goalMoney;
+		List<String> agentLog;
+
+		public AgentInfo(String name, String type, double startMoney, double goalMoney) {
+			this.name = name;
+			this.type = type;
+			this.startMoney = startMoney;
+			this.goalMoney = goalMoney;
+			this.agentLog = new ArrayList<String>();
+		}
+	}
+
 	public class CreateAgentActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -240,14 +268,22 @@ public class AppFrame extends JFrame {
 				System.out.println("start: " + startingMoney.getText());
 				System.out.println("goal: " + goalMoney.getText());
 				System.out.println("maxMoneySpentOnPurchase: " + maxMoneySpentOnPurchase.getText());
-				if (cautious.isSelected())
+
+				String agentType = "normal";
+				if (cautious.isSelected()) {
+					agentType = "cautious";
 					System.out.println("cautious");
+				}
+
 				else if (normal.isSelected())
 					System.out.println("normal");
-				else if (greedy.isSelected())
+				else if (greedy.isSelected()) {
 					System.out.println("greedy");
+					agentType = "greedy";
+				}
 
 				// Convert values
+
 				double startingMoney_f = Double.parseDouble(startingMoney.getText());
 				double goalMoney_f = Double.parseDouble(goalMoney.getText());
 				double maxMoneySpentOnPurchase_f = Double.parseDouble(maxMoneySpentOnPurchase.getText());
@@ -261,6 +297,7 @@ public class AppFrame extends JFrame {
 				Main.tupleFut = Main.cms.createComponent("myStandardBDI", "agents.StandardBDI.class", Main.ci);
 				Main.cid = Main.tupleFut.getFirstResult();
 				// Add To List
+				agentList.add(new AgentInfo(agentName.getText(), agentType, startingMoney_f, goalMoney_f));
 				AppPanel.agentModel.addElement(agentName.getText());
 
 			}

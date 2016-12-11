@@ -44,7 +44,8 @@ public class InformationBroker {
 
 	public void initBrokerServiceInfo(IExternalAccess platform) {
 		this.platform = platform;
-		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform, IComponentManagementService.class);
+		IFuture<IComponentManagementService> fut = SServiceProvider.getService(platform,
+				IComponentManagementService.class);
 		cms = fut.get();
 	}
 
@@ -61,7 +62,7 @@ public class InformationBroker {
 			return true;
 		}
 
-	};;
+	};
 
 	public List<Pair<IComponentIdentifier, Double>> stockPricesGrowth = new ArrayList<Pair<IComponentIdentifier, Double>>() {
 		/**
@@ -87,7 +88,6 @@ public class InformationBroker {
 			sortListDecreasing(stockPricesCoefVar);
 			return true;
 		}
-
 	};
 
 	public List<Pair<IComponentIdentifier, Double>> stockPrices = new ArrayList<Pair<IComponentIdentifier, Double>>() {
@@ -203,7 +203,8 @@ public class InformationBroker {
 		sortListDecreasing(stockPrices);
 	}
 
-	private synchronized boolean replaceListPair(IComponentIdentifier pairKey, List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
+	private synchronized boolean replaceListPair(IComponentIdentifier pairKey,
+			List<Pair<IComponentIdentifier, Double>> list, Double newValue) {
 		Pair<IComponentIdentifier, Double> pair;
 		if ((pair = getPairLinear(pairKey, list)) != null) {
 			pair.setValue(newValue);
@@ -214,7 +215,8 @@ public class InformationBroker {
 
 	}
 
-	public synchronized Pair<IComponentIdentifier, Double> getPairLinear(IComponentIdentifier company, List<Pair<IComponentIdentifier, Double>> list) {
+	public synchronized Pair<IComponentIdentifier, Double> getPairLinear(IComponentIdentifier company,
+			List<Pair<IComponentIdentifier, Double>> list) {
 		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
 			Pair<IComponentIdentifier, Double> pair = iter.next();
 			if (pair.getKey().equals(company)) {
@@ -224,7 +226,8 @@ public class InformationBroker {
 		return null;
 	}
 
-	public synchronized Pair<IComponentIdentifier, Double> getPairBinary(IComponentIdentifier company, Double value, List<Pair<IComponentIdentifier, Double>> list) {
+	public synchronized Pair<IComponentIdentifier, Double> getPairBinary(IComponentIdentifier company, Double value,
+			List<Pair<IComponentIdentifier, Double>> list) {
 
 		int low = 0;
 		int high = list.size() - 1;
@@ -252,7 +255,8 @@ public class InformationBroker {
 
 	}
 
-	public synchronized Pair<IComponentIdentifier, Double> linearSearch(List<Pair<IComponentIdentifier, Double>> list, Double value, IComponentIdentifier company, int middle) {
+	public synchronized Pair<IComponentIdentifier, Double> linearSearch(List<Pair<IComponentIdentifier, Double>> list,
+			Double value, IComponentIdentifier company, int middle) {
 
 		for (Iterator<Pair<IComponentIdentifier, Double>> iter = list.listIterator(); iter.hasNext();) {
 			Pair<IComponentIdentifier, Double> pair = iter.next();

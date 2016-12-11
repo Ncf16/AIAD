@@ -13,6 +13,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -20,6 +21,10 @@ import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
+
+import gui.AppFrame;
+import gui.AppFrame.AgentInfo;
 
 public class AppPanel extends JPanel implements ListSelectionListener {
 	private static final long serialVersionUID = 1L;
@@ -81,7 +86,7 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 			public void mouseClicked(MouseEvent evt) {
 				JList list = (JList) evt.getSource();
 				if (evt.getClickCount() == 2) {
-					openAgentInfo(list.getSelectedIndex());
+					openAgentInfo(list.getSelectedIndex(), list.getSelectedValue().toString());
 				}
 			}
 		});
@@ -90,48 +95,53 @@ public class AppPanel extends JPanel implements ListSelectionListener {
 		add(listScrollPane, BorderLayout.WEST);
 	}
 
-	private void openAgentInfo(int agentIndex) {
+	private void openAgentInfo(int agentIndex, String agentName) {
 		JPanel panel = new JPanel();
 		panel.setLayout((LayoutManager) new BoxLayout(panel, BoxLayout.Y_AXIS));
+		String title = "Agent " + agentIndex;
 
-		String title = "Agent " + (agentIndex + 1);
-
-		panel.add(new JLabel("Name: " + "Agent Name"));
-		panel.add(Box.createVerticalStrut(15)); // a spacer
-
-		panel.add(new JLabel("Agent Type: " + "TYPE"));
-		panel.add(Box.createVerticalStrut(15)); // a spacer
-
-		panel.add(new JLabel("Starting Money: "));
-		panel.add(Box.createVerticalStrut(15)); // a spacer
-
-		panel.add(new JLabel("Goal Money: "));
+		panel.add(new JLabel("Name: " + agentName));
 		panel.add(Box.createVerticalStrut(15)); // a spacer
 		
-		panel.add(new JLabel("Current Money [cash]: "));
-		panel.add(Box.createVerticalStrut(15)); // a spacer
+		List<String> agentLog;
 		
-		panel.add(new JLabel("Current Money [stocks]: "));
-		panel.add(Box.createVerticalStrut(15)); // a spacer
-		
-		DefaultListModel listModel = new DefaultListModel();
-		listModel.addElement("Company A : X in stock");
-		listModel.addElement("Company A : X in stock");
-		listModel.addElement("Company A : X in stock");
-		listModel.addElement("Company A : X in stock");
-		listModel.addElement("Company A : X in stock");
+		for (AgentInfo temp : AppFrame.agentList){
+			if (temp.name.equals(agentName)){
+				
+				panel.add(new JLabel("Agent Type: " + temp.type));
+				panel.add(Box.createVerticalStrut(15)); // a spacer
+				
+				panel.add(new JLabel("Starting Money: " + temp.startMoney + "€"));
+				panel.add(Box.createVerticalStrut(15));
+				
+				panel.add(new JLabel("Goal Money: " + temp.goalMoney + "€"));
+				panel.add(Box.createVerticalStrut(15));
+				
+				// Get Agent identifier
+				panel.add(new JLabel("Current Money [cash]: "));
+				panel.add(Box.createVerticalStrut(15));
+				
+				panel.add(new JLabel("Current Money [stocks]: "));
+				panel.add(Box.createVerticalStrut(15));
+				
+				DefaultListModel listModel = new DefaultListModel();
+				for (String log : temp.agentLog) {
+					listModel.addElement(log);
+				}
+				
+				JList stockholdings = new JList(listModel);
+				stockholdings.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				stockholdings.setSelectedIndex(0);
+				stockholdings.addListSelectionListener(this);
+				stockholdings.setVisibleRowCount(5);
+				
+				panel.add(stockholdings);
+				
+			}
+		}
 
-
-		JList stockholdings = new JList(listModel);
-		stockholdings.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		stockholdings.setSelectedIndex(0);
-		stockholdings.addListSelectionListener(this);
-		stockholdings.setVisibleRowCount(5);
-		
-		panel.add(stockholdings);
-
-
-		int result = JOptionPane.showConfirmDialog(null, panel, title, JOptionPane.OK_CANCEL_OPTION);
+	
+		int result = JOptionPane.showConfirmDialog(null, panel, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			// Create an agent
 		}
